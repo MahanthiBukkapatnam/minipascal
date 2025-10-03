@@ -6,7 +6,7 @@ import java.util.List;
 public class InputOutputModule {
 
     int currentLineIndex = 0;
-    int currentColIndex = 0;
+    int nextColIndex = 0;
 
     private List<String> lines = new ArrayList<>();
     private Output output = new Output();
@@ -30,7 +30,7 @@ public class InputOutputModule {
     public char nextChar() {
         try {
             String currentLine = lines.get(currentLineIndex);
-            char toReturn = currentLine.charAt(currentColIndex);
+            char toReturn = currentLine.charAt(nextColIndex);
             moveToNextCharLocation(currentLine);
             return toReturn;
         }
@@ -40,12 +40,22 @@ public class InputOutputModule {
         return 0;
     }
 
+    public char peek() {
+        try {
+            String currentLine = lines.get(currentLineIndex);
+            return currentLine.charAt(nextColIndex);
+        }
+        catch(Exception ex) {
+        }
+        return 0;
+    }
+
     void moveToNextCharLocation(String currentLine) {
-        currentColIndex++;
-        if(currentColIndex > currentLine.length()-1 ) {
+        nextColIndex++;
+        if(nextColIndex > currentLine.length()-1 ) {
             //move to next line;
             currentLineIndex++;
-            currentColIndex=0;
+            nextColIndex =0;
         }
     }
 }
