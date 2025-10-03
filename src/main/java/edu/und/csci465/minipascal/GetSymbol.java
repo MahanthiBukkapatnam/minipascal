@@ -36,8 +36,12 @@ public class GetSymbol {
                 if(isDigit(ch) ) {
                     processForDigit(ch);
                 }
-                if(isLetter(ch) ) {
+                else if(isLetter(ch) ) {
                     processForWord(ch);
+                }
+                else if(isOperator(ch,inputOutputModule.peek()) ) {
+                    String operatorName = PascalOperatorCharacter.getOperatorName(ch, inputOutputModule.peek());
+                    lexemes.add( new Token(operatorName, "OPERATOR"));
                 }
                 else {
                     lexemes.add(new Token("" + ch));
@@ -46,6 +50,10 @@ public class GetSymbol {
             }
             ch = inputOutputModule.nextChar();
         }
+    }
+
+    boolean isOperator(char ch, char ch2) {
+        return PascalOperatorCharacter.isKeyword(ch,ch2);
     }
 
     boolean isLetter(char ch) {
