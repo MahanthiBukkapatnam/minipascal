@@ -5,21 +5,20 @@ public class Token {
     String lexeme;
     String type;
     int value;
+    Position position;
 
-    public Token(String lexeme) {
-        this.lexeme= lexeme;
-    }
-
-    public Token(String lexeme, String type, int value) {
+    public Token(String lexeme, String type, int value, Position position) {
         this.lexeme= lexeme;
         this.type = type;
         this.value = value;
+        this.position = position;
     }
 
-    public Token(String lexeme, String type) {
+    public Token(String lexeme, String type, Position position) {
         this.lexeme= lexeme;
         this.type = type;
         this.value = value;
+        this.position = position;
     }
 
     @Override

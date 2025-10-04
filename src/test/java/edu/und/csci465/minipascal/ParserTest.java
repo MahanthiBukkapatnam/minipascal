@@ -7,7 +7,7 @@ class ParserTest {
     @Test
     void readFile() {
         InputOutputModule ioModule = new InputOutputModule();
-        ioModule.readFile("src/test/resources/sample4.txt");
+        ioModule.readFile("src/test/resources/sample5.txt");
 
         GetSymbol getsym = new GetSymbol();
         getsym.setInputOutputModule(ioModule);

@@ -58,4 +58,9 @@ public class InputOutputModule {
             nextColIndex =0;
         }
     }
+
+    public Position getPosition() {
+        return new Position(this.currentLineIndex, this.nextColIndex);
+    }
+
 }

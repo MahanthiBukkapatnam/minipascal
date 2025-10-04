@@ -41,15 +41,20 @@ public class GetSymbol {
                 }
                 else if(isOperator(ch,inputOutputModule.peek()) ) {
                     String operatorName = PascalOperatorCharacter.getOperatorName(ch, inputOutputModule.peek());
-                    lexemes.add( new Token(operatorName, "OPERATOR"));
+                    lexemes.add( new Token(operatorName, "OPERATOR", getPosition()));
+                }
+                else if(isQuote(ch)) {
+                    processForQuote(ch);
                 }
                 else {
-                    lexemes.add(new Token("" + ch));
+                    lexemes.add(new Token("" + ch, "ILLEGAL", getPosition()));
                 }
                 //System.out.println(ch);
             }
             ch = inputOutputModule.nextChar();
         }
+
+        lexemes.add( new Token("", "EOF", getPosition()));
     }
 
     boolean isOperator(char ch, char ch2) {
@@ -68,6 +73,10 @@ public class GetSymbol {
         return ch == ' ' || ch == '\t' || ch == 10 || ch == 13;
     }
 
+    boolean isQuote(char ch) {
+        return ch == '\'';
+    }
+
     void processForDigit(char ch) {
         int totalValue = ch - '0';
         while(isDigit(inputOutputModule.peek())) {
@@ -77,23 +86,49 @@ public class GetSymbol {
         }
         int value = ch - '0';
         totalValue += value;
-        lexemes.add( new Token("--", "NUMBER", totalValue ));
+        lexemes.add( new Token("--", "NUMBER", totalValue, getPosition() ));
     }
 
     void processForWord(char ch) {
         String word = "";
-        while(isLetter(inputOutputModule.peek())) {
+        while(isLetter(inputOutputModule.peek()) || isDigit(inputOutputModule.peek())) {
             word = word + ch;
             ch = inputOutputModule.nextChar();
         }
         word = word + ch;
 
         if(PascalKeywords.isKeyword(word)) {
-            lexemes.add(new Token(word, "KEYWORD"));
+            lexemes.add(new Token(word, "KEYWORD", getPosition()));
         }
         else {
-            lexemes.add(new Token(word, "IDENTIFIER"));
+            lexemes.add(new Token(word, "IDENTIFIER", getPosition()));
         }
     }
 
+    void processForQuote(char ch) {
+        char ch1 = ch;
+        char ch2 = inputOutputModule.peek();
+        //System.out.printf("[%c %c]\n", ch1, ch2);
+
+        String word = "";
+        ch1 = inputOutputModule.nextChar();
+        while( !isQuote(ch1) ) {
+            word = word + ch1;
+            //System.out.println(word);
+
+            //advance to next char
+            ch1 = inputOutputModule.nextChar();
+        }
+
+        if(word.length()==1) {
+            lexemes.add(new Token(word, "LIT_QUOTE", getPosition()));
+        }
+        else {
+            lexemes.add(new Token(word, "QUOTE", getPosition()));
+        }
+    }
+
+    public Position getPosition() {
+        return inputOutputModule.getPosition();
+    }
 }

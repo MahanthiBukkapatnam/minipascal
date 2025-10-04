@@ -14,11 +14,15 @@ public class Parser {
 
     public void process() {
         Token token = getSymbol.getNextToken();
+
         while( null != token ) {
             //System.out.println(token.toString());
             if(token.lexeme.equals(" ")) {
             }
-            else if(token.lexeme.equals("NUMBER")) {
+            else if(token.type !=null && token.type.equals("ILLEGAL")) {
+                System.out.printf("%20s %20s at [%3d,%3d]\n", token.type, token.lexeme, token.position.getLineNumber(), token.position.getColumnNumber());
+            }
+            else if(token.type !=null && token.type.equals("NUMBER")) {
                 System.out.printf("%20s %20s\n", token.type, token.value);
             }
             else {
