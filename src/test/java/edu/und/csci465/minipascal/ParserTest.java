@@ -4,6 +4,7 @@ package edu.und.csci465.minipascal;
 import org.junit.jupiter.api.Test;
 
 class ParserTest {
+
     @Test
     void parse() {
         parseMiniPascalFile("src/test/resources/sample.txt");
@@ -11,6 +12,8 @@ class ParserTest {
         parseMiniPascalFile("src/test/resources/sample3.txt");
         parseMiniPascalFile("src/test/resources/sample4.txt");
         parseMiniPascalFile("src/test/resources/sample5.txt");
+        parseMiniPascalFile("src/test/resources/sample6-cleanPascalProgram.txt");
+        parseMiniPascalFile("src/test/resources/sample7-pascalProgramWithLexicalError.txt");
     }
 
     private static void parseMiniPascalFile(String fileName) {

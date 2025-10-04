@@ -8,11 +8,14 @@ public class InputOutputModule {
     int currentLineIndex = 0;
     int nextColIndex = 0;
 
+    int totalNumberOfLines = 0;
+
     private List<String> lines = new ArrayList<>();
     private Output output = new Output();
 
     public void readFile(String fileName) {
         lines = Input.readFile(fileName);
+        totalNumberOfLines = lines.size();
         process();
     }
 
@@ -30,6 +33,12 @@ public class InputOutputModule {
     public char nextChar() {
         try {
             String currentLine = lines.get(currentLineIndex);
+
+            while(currentLine.length()==0 && currentLineIndex<totalNumberOfLines) {
+                currentLineIndex++;
+                currentLine = lines.get(currentLineIndex);
+            }
+
             char toReturn = currentLine.charAt(nextColIndex);
             moveToNextCharLocation(currentLine);
             return toReturn;
