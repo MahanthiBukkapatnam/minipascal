@@ -16,8 +16,10 @@ public class Output {
     }
 
     public void print() {
+        int lineNumber=1;
         for (String line : lines) {
-            System.out.println(line);
+            System.out.printf("%03d: %s\n", lineNumber,line);
+            lineNumber++;
         }
     }
 }
