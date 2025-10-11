@@ -1,5 +1,6 @@
-package edu.und.csci465.minipascal;
+package edu.und.csci465.minipascal.symboltable;
 
+import edu.und.csci465.minipascal.symboltable.PascalKeywords;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

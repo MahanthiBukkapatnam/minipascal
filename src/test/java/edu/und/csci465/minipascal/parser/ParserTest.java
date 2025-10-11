@@ -1,6 +1,10 @@
-package edu.und.csci465.minipascal;
+package edu.und.csci465.minipascal.parser;
 
 
+import edu.und.csci465.minipascal.lexer.InputOutputModule;
+import edu.und.csci465.minipascal.lexer.Output;
+import edu.und.csci465.minipascal.parser.Parser;
+import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import org.junit.jupiter.api.Test;
 
 class ParserTest {
@@ -9,7 +13,7 @@ class ParserTest {
     void parse() {
         parseMiniPascalFile("src/test/resources/sample.txt");
         parseMiniPascalFile("src/test/resources/sample2.txt");
-        parseMiniPascalFile("src/test/resources/sample3.txt");
+        parseMiniPascalFile("src/test/resources/comments1.txt");
         parseMiniPascalFile("src/test/resources/sample4.txt");
         parseMiniPascalFile("src/test/resources/sample5.txt");
         parseMiniPascalFile("src/test/resources/sample6-cleanPascalProgram.txt");
@@ -23,8 +27,8 @@ class ParserTest {
         System.out.println("");
         System.out.println("Printing original file: " + fileName);
         System.out.println("--------------------------------------------");
-        Output output = ioModule.getOutput();
-        output.print();
+//        Output output = ioModule.getOutput();
+//        output.print();
         System.out.println("--------------------------------------------");
 
         GetSymbol getsym = new GetSymbol();

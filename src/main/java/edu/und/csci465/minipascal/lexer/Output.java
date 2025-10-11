@@ -1,4 +1,4 @@
-package edu.und.csci465.minipascal;
+package edu.und.csci465.minipascal.lexer;
 
 import java.util.ArrayList;
 import java.util.List;

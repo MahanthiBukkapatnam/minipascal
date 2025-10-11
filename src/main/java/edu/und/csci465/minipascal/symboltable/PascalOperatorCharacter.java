@@ -1,4 +1,4 @@
-package edu.und.csci465.minipascal;
+package edu.und.csci465.minipascal.symboltable;
 
 import java.util.HashMap;
 import java.util.HashSet;
