@@ -16,23 +16,25 @@ public class Parser {
     }
 
     public void process() {
-        Token token = getSymbol.getNextToken();
+        try {
+            Token token = getSymbol.getNextToken();
 
-        while( null != token ) {
-            //System.out.println(token.toString());
-            if(token.getLexeme().equals(" ")) {
-            }
-            else if(token.getType() !=null && token.getType().equals("ILLEGAL")) {
-                System.out.printf("%20s %20s at [%3d,%3d]\n", token.getType(), token.getLexeme(), token.getPosition().getLineNumber(), token.getPosition().getColumnNumber());
-            }
-            else if(token.getType() !=null && token.getType().equals("NUMBER")) {
-                System.out.printf("%20s %20s\n", token.getType(), token.getValue());
-            }
-            else {
-                System.out.printf("%20s %20s\n", token.getType(), token.getLexeme());
-            }
+            while (null != token) {
+                //System.out.println(token.toString());
+                if (token.getLexeme().equals(" ")) {
+                } else if (token.getType() != null && token.getType().equals("ILLEGAL")) {
+                    System.out.printf("%20s %20s at [%3d,%3d]\n", token.getType(), token.getLexeme(), token.getPosition().getLineNumber(), token.getPosition().getColumnNumber());
+                } else if (token.getType() != null && token.getType().equals("NUMBER")) {
+                    System.out.printf("%20s %20s\n", token.getType(), token.getValue());
+                } else {
+                    System.out.printf("%20s %20s\n", token.getType(), token.getLexeme());
+                }
 
-            token = getSymbol.getNextToken();
+                token = getSymbol.getNextToken();
+            }
+        }
+        catch(Exception ex) {
+            System.out.printf(ex.getMessage());
         }
     }
 }

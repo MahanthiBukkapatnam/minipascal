@@ -1,0 +1,7 @@
+program PrintMyName;
+
+begin
+  my@name := 'test';
+
+  writeln('Hello, my name is Mahanthi Bukkapatnam.');
+end

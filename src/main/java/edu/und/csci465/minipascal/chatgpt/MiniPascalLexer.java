@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
+ * ChatGPT Prompt:  "Write a Lexer in Java for Mini Pascal"
+ *
  * MiniPascal Lexer (Tokenizer)
  * - Single file, no dependencies
  * - Line/column tracking
@@ -216,7 +218,6 @@ public class MiniPascalLexer {
     // ===== Helpers: numbers =====
     private Token readNumber(int startLine, int startCol) {
         StringBuilder sb = new StringBuilder();
-
         // integer part
         while (!isAtEnd() && Character.isDigit(peek())) sb.append(advance());
 
@@ -379,11 +380,12 @@ public class MiniPascalLexer {
 
     // ===== Demo main =====
     public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            System.err.println("Usage: java MiniPascalLexer <path-to-source.pas>");
-            System.exit(1);
-        }
-        String path = args[0];
+//        if (args.length == 0) {
+//            System.err.println("Usage: java MiniPascalLexer <path-to-source.pas>");
+//            System.exit(1);
+//        }
+        //String path = args[0];
+        String path = "src/test/resources/pascalPrograms/valid/sample2.txt";
 
         // Read bytes to preserve original EOLs exactly
         byte[] bytes = Files.readAllBytes(Paths.get(path));

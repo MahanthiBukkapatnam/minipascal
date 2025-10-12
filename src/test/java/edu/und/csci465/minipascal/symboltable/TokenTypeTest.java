@@ -18,4 +18,23 @@ public class TokenTypeTest {
         assertEquals("ANDSYM", TokenType.ANDSYM.toString());
         assertEquals("VARSYM", TokenType.VARSYM.toString());
     }
+
+    @Test
+    void checkForKeyword() {
+        assertTrue( TokenType.isKeyword("BEGIN") );
+        assertTrue( TokenType.isKeyword("begin") );
+        assertFalse( TokenType.isKeyword("begin1") );
+    }
+
+    @Test
+    void checkForOperator() {
+        assertTrue( TokenType.is2CharOperator('<','>') );
+        assertTrue( TokenType.is2CharOperator(':','=') );
+        assertTrue( TokenType.is2CharOperator('<','=') );
+        assertTrue( TokenType.is2CharOperator('>','=') );
+
+        assertTrue( TokenType.is1CharOperator('<') );
+        assertTrue( TokenType.is1CharOperator('>') );
+    }
+
 }

@@ -11,7 +11,7 @@ public class InputTest {
 
     @Test
     public void readFileTest() {
-        List<String> strings = Input.readFile("src/test/resources/basic.txt");
+        List<String> strings = Input.readFile("src/test/resources/basic.pas");
         assertEquals(3, strings.size());
         assertEquals("Hello", strings.get(0));
         assertEquals("Mini", strings.get(1));
@@ -20,7 +20,7 @@ public class InputTest {
 
     @Test
     public void readFileAndKeepEolTest() {
-        String fileContent = Input.readFileAndKeepEol("src/test/resources/basic.txt");
+        String fileContent = Input.readFileAndKeepEol("src/test/resources/basic.pas");
         System.out.println("[" + fileContent + "]");
         assertEquals("Hello\r\nMini\r\nPascal\r\n", fileContent);
     }

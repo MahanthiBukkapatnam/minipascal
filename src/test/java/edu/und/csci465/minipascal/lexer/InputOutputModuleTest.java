@@ -11,7 +11,7 @@ class InputOutputModuleTest {
     @Test
     void readFile() {
         InputOutputModule ioModule = new InputOutputModule();
-        ioModule.readFile("src/test/resources/sample.txt");
+        ioModule.readFile("src/test/resources/pascalPrograms/0spaces/spaces1.pas");
         System.out.println(ioModule.getFileContent());
 
         printCharsFromInput(ioModule);
@@ -22,7 +22,7 @@ class InputOutputModuleTest {
         @Test
         void readFileWithSpaces() {
             InputOutputModule ioModule = new InputOutputModule();
-            ioModule.readFile("src/test/resources/spaces/spaces5.txt");
+            ioModule.readFile("src/test/resources/pascalPrograms/0spaces/spaces5.txt");
             System.out.println(ioModule.getFileContent());
 
             printCharsFromInput(ioModule);
