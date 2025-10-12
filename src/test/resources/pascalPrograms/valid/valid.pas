@@ -3,7 +3,7 @@ var x,y:integer;
 function gcd(a,b:integer):integer;
 begin{gcd}
 
-if b= then gcd:=a else gcd:=(b,a mod b)
+if b= 1234 then gcd:=a else gcd:=(b,a mod b)
 
 end;{gcd}
 begin{example}

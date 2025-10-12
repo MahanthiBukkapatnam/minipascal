@@ -2,6 +2,7 @@ package edu.und.csci465.minipascal.parser;
 
 import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import edu.und.csci465.minipascal.symboltable.Token;
+import edu.und.csci465.minipascal.symboltable.TokenType;
 
 public class Parser {
 
@@ -22,10 +23,8 @@ public class Parser {
             while (null != token) {
                 //System.out.println(token.toString());
                 if (token.getLexeme().equals(" ")) {
-                } else if (token.getType() != null && token.getType().equals("ILLEGAL")) {
+                } else if (token.getType() != null && token.getType() == TokenType.ILLEGAL) {
                     System.out.printf("%20s %20s at [%3d,%3d]\n", token.getType(), token.getLexeme(), token.getPosition().getLineNumber(), token.getPosition().getColumnNumber());
-                } else if (token.getType() != null && token.getType().equals("NUMBER")) {
-                    System.out.printf("%20s %20s\n", token.getType(), token.getValue());
                 } else {
                     System.out.printf("%20s %20s\n", token.getType(), token.getLexeme());
                 }
