@@ -59,7 +59,7 @@ public class GetSymbol {
             }
             // Numbers (integer or real)
             else if (Character.isDigit(ch)) {
-                processForDigit2();
+                processForDigit();
             }
             else if(isOperator(ch,ioModule.peek()) ) {
                 if(TokenType.is2CharOperator(ch,ioModule.peek())) {
@@ -193,25 +193,7 @@ public class GetSymbol {
         return ch == '}';
     }
 
-    void processForDigit(char ch) {
-        Position startPosition = getPosition();
-        int totalValue = ch - '0';
-        StringBuilder sb = new StringBuilder();
-        while(isDigit(ioModule.peek())) {
-            sb.append(ch);
-            int value = ch - '0';
-            totalValue = totalValue * 10 + (ioModule.peek()-'0');
-
-            ioModule.next();
-            ch = ioModule.currentChar();
-        }
-        int value = ch - '0';
-        sb.append(ch);
-        totalValue += value;
-        tokens.add( new Token(sb.toString(), TokenType.NUMBER, totalValue,startPosition));
-    }
-
-    void processForDigit2() {
+    void processForDigit() {
         Position startPosition = ioModule.getPosition();
         char ch = ioModule.currentChar();
         StringBuilder sb = new StringBuilder();
