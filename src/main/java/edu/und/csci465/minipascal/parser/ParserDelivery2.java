@@ -1,5 +1,6 @@
 package edu.und.csci465.minipascal.parser;
 
+import edu.und.csci465.minipascal.lexer.Position;
 import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import edu.und.csci465.minipascal.symboltable.Token;
 import edu.und.csci465.minipascal.symboltable.TokenType;
@@ -40,7 +41,7 @@ public class ParserDelivery2 implements IParser {
             threeAddressCode.print();
         }
         catch(Exception ex) {
-            System.out.printf(ex.getMessage());
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -86,7 +87,8 @@ public class ParserDelivery2 implements IParser {
     }
 
     private void error(String msg) {
-        throw new RuntimeException("Parse error: " + msg + " at token " + lookahead);
+        Position position = lookahead.getPosition();
+        throw new RuntimeException("Parse error: " + msg + " at [Line:" + position.getLineNumber() + ",Column:" + position.getColumnNumber() + "]" );
     }
 
     private String newTemp() {

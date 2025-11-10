@@ -4,6 +4,7 @@ package edu.und.csci465.minipascal.parser;
 import edu.und.csci465.minipascal.lexer.InputOutputModule;
 import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import edu.und.csci465.minipascal.util.FileUtil;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,9 +17,17 @@ class ParserDelivery2Test {
         return new ParserDelivery2();
     }
 
-    @Test
-    void parseInvalid() {
-        parseMiniPascalFile("src/test/resources/basic.pas");
+    @Nested
+    class InvalidCases {
+        @Test
+        void parseInvalid1() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/invalid1.pas");
+        }
+
+        @Test
+        void parseInvalid2() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/invalid2.pas");
+        }
     }
 
     @Test
@@ -29,7 +38,7 @@ class ParserDelivery2Test {
     @Test
     void parse2() {
         parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr2.pas");
-        assertEquals("300\n", parser.runInterpreter() );
+        assertEquals("500\n", parser.runInterpreter() );
     }
 
     @Test
@@ -118,7 +127,7 @@ class ParserDelivery2Test {
 
             parser = makeParserObject();
             parser.setGetSymbol(getsym);
-            System.out.println("Printing the Token Stream:");
+            System.out.println("Printing the Intermediate Code:");
             System.out.println("--------------------------------------------");
             parser.process();
             System.out.println("--------------------------------------------");
