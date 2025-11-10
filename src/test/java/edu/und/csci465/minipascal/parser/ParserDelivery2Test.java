@@ -35,6 +35,7 @@ class ParserDelivery2Test {
     @Test
     void parseAllConstants() {
         parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/allConstants.pas");
+        System.out.println( "Output of Interpreter:");
         System.out.println( parser.runInterpreter() );
         assertEquals(
                 "23\n" +
@@ -50,6 +51,7 @@ class ParserDelivery2Test {
     @Test
     void parseBasicMixed() {
         parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/basicMixed.pas");
+        System.out.println( "Output of Interpreter:");
         System.out.println( parser.runInterpreter() );
         assertEquals(
                 "0\n" +
@@ -69,7 +71,10 @@ class ParserDelivery2Test {
     @Test
     void parseAll4Operators() {
         parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/all4Operators.pas");
+
+        System.out.println( "Output of Interpreter:");
         System.out.println( parser.runInterpreter() );
+
         assertEquals("-9\n" +
                 "-1\n" +
                 "2\n" +
@@ -83,6 +88,7 @@ class ParserDelivery2Test {
     @Test
     void parseParanthesis() {
         parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/parenthesis.pas");
+        System.out.println( "Output of Interpreter:");
         System.out.println( parser.runInterpreter() );
         assertEquals("9\n" +
                 "5\n" +
@@ -129,6 +135,8 @@ class ParserDelivery2Test {
         String prefix = "src/test/resources/delivery2/expressions/addition/expr";
         for( int i=1; i<=10; i++) {
             parseMiniPascalFile(prefix + i + ".pas");
+            System.out.println( "Output of Interpreter:");
+            System.out.println( parser.runInterpreter() );
         }
     }
 
@@ -137,6 +145,8 @@ class ParserDelivery2Test {
         String prefix = "src/test/resources/delivery2/expressions/multiplication/expr";
         for( int i=1; i<=10; i++) {
             parseMiniPascalFile(prefix + i + ".pas");
+            System.out.println( "Output of Interpreter:");
+            System.out.println( parser.runInterpreter() );
         }
     }
 
@@ -145,6 +155,8 @@ class ParserDelivery2Test {
         String prefix = "src/test/resources/delivery2/expressions/mixed/expr";
         for( int i=1; i<=10; i++) {
             parseMiniPascalFile(prefix + i + ".pas");
+            System.out.println( "Output of Interpreter:");
+            System.out.println( parser.runInterpreter() );
         }
     }
 

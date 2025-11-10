@@ -1,6 +1,5 @@
 package edu.und.csci465.minipascal.parser;
 
-import edu.und.csci465.minipascal.chatgpt.MiniPascalToTAC;
 import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import edu.und.csci465.minipascal.symboltable.Token;
 import edu.und.csci465.minipascal.symboltable.TokenType;
@@ -37,10 +36,8 @@ public class ParserDelivery2 implements IParser {
             lookahead = getSymbol.getNextToken();
             parseProgram();
 
-            // Print TAC
-            for (TACInstr i : tac) {
-                System.out.println(i);
-            }
+            ThreeAddressCode threeAddressCode = new ThreeAddressCode(tac, variables);
+            threeAddressCode.print();
         }
         catch(Exception ex) {
             System.out.printf(ex.getMessage());
@@ -51,7 +48,6 @@ public class ParserDelivery2 implements IParser {
         TACInterpreter interpreter = new TACInterpreter(tac);
         return interpreter.run();
     }
-
 
     private void parseProgram() {
         consume(TokenType.PROGRAMSYM);
