@@ -1,4 +1,4 @@
-package edu.und.csci465.minipascal;
+package edu.und.csci465.minipascal.chatgpt;
 
 import java.io.*;
 import java.util.*;

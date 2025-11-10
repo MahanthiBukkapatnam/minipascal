@@ -1,4 +1,4 @@
-package edu.und.csci465.minipascal;
+package edu.und.csci465.minipascal.chatgpt;
 
 import edu.und.csci465.minipascal.lexer.Input;
 import org.junit.jupiter.api.Test;
