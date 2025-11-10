@@ -37,7 +37,7 @@ class MiniPascalToTACTest {
         String prefix = "src/test/resources/delivery2/expressions/addition/expr";
         for( int i=1; i<=10; i++) {
             String fileName = prefix + i + ".pas";
-            extracted(fileName);
+            compileAndGenerateTAC(fileName);
         }
     }
 
@@ -46,7 +46,7 @@ class MiniPascalToTACTest {
         String prefix = "src/test/resources/delivery2/expressions/multiplication/expr";
         for( int i=1; i<=10; i++) {
             String fileName = prefix + i + ".pas";
-            extracted(fileName);
+            compileAndGenerateTAC(fileName);
         }
     }
 
@@ -55,11 +55,11 @@ class MiniPascalToTACTest {
         String prefix = "src/test/resources/delivery2/expressions/mixed/expr";
         for( int i=1; i<=10; i++) {
             String fileName = prefix + i + ".pas";
-            extracted(fileName);
+            compileAndGenerateTAC(fileName);
         }
     }
 
-    private void extracted(String fileName) {
+    private void compileAndGenerateTAC(String fileName) {
         System.out.println("------------------------------------------------");
         System.out.println("Translating Source: " + fileName);
         System.out.println("-----------------------");
@@ -68,6 +68,11 @@ class MiniPascalToTACTest {
         List<MiniPascalToTAC.TACInstr> tac = compileSource(source);
         printTAC(tac);
         System.out.println("------------------------------------------------");
+    }
+
+    @Test
+    void parse2() {
+        compileAndGenerateTAC("src/test/resources/delivery2/expressions/mixed/expr2.pas");
     }
 
 }

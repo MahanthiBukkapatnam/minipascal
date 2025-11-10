@@ -42,6 +42,11 @@ class ParserTest {
         parseMiniPascalFile("src/test/resources/sample7-pascalProgramWithLexicalError.pas");
     }
 
+    @Test
+    void parse2() {
+        parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr2.pas");
+    }
+
     void parseMiniPascalFile(String fileName) {
         try {
             FileUtil.printFile(fileName);

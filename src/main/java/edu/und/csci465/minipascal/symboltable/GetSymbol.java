@@ -60,6 +60,8 @@ public class GetSymbol {
             // Numbers (integer or real)
             else if (Character.isDigit(ch)) {
                 processForDigit();
+                ch = ioModule.currentChar();
+                continue;
             }
             else if(isOperator(ch,ioModule.peek()) ) {
                 if(TokenType.is2CharOperator(ch,ioModule.peek())) {

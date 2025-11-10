@@ -19,7 +19,12 @@ public class Token {
     public Token(String lexeme, TokenType type, Position position) {
         this.lexeme= lexeme;
         this.type = type;
-        this.value = value;
+        if(type == TokenType.NUMBER) {
+            this.value = Integer.parseInt(lexeme);
+        }
+        else {
+            this.value = value; //MB: Need to enhance this later on
+        }
         this.position = position;
     }
 

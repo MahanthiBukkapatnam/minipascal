@@ -4,7 +4,7 @@ import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import edu.und.csci465.minipascal.symboltable.Token;
 import edu.und.csci465.minipascal.symboltable.TokenType;
 
-public class Parser {
+public class Parser implements IParser {
 
     private GetSymbol getSymbol;
 
@@ -36,4 +36,9 @@ public class Parser {
             System.out.printf(ex.getMessage());
         }
     }
+
+    public String runInterpreter() {
+        return "";
+    }
+
 }
