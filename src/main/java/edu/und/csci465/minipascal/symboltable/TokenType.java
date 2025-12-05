@@ -7,12 +7,15 @@ public enum TokenType {
     ANDSYM,
     ARRAYSYM,
     BEGINSYM,
+    BOOLEANSYM,
     CHARSYM,
     CHRSYM,
     DIVSYM,
     DOSYM,
     ELSESYM,
     ENDSYM,
+    FALSESYM,
+    FORSYM,
     IFSYM,
     INTEGERSYM,
     MODSYM,
@@ -25,6 +28,8 @@ public enum TokenType {
     READSYM,
     READLNSYM,
     THENSYM,
+    TOSYM,
+    TRUESYM,
     VARSYM,
     WHILESYM,
     WRITESYM,
@@ -67,12 +72,15 @@ public enum TokenType {
         keyWords.put("and",      TokenType.ANDSYM);
         keyWords.put("array",    TokenType.ARRAYSYM);
         keyWords.put("begin",    TokenType.BEGINSYM);
+        keyWords.put("boolean",  TokenType.BOOLEANSYM);
         keyWords.put("char",     TokenType.CHARSYM);
         keyWords.put("chr",      TokenType.CHRSYM);
         keyWords.put("div",      TokenType.DIVSYM);
         keyWords.put("do",       TokenType.DOSYM);
         keyWords.put("else",     TokenType.ELSESYM);
         keyWords.put("end",      TokenType.ENDSYM);
+        keyWords.put("false",    TokenType.FALSESYM);
+        keyWords.put("for",      TokenType.FORSYM);
         keyWords.put("if",       TokenType.IFSYM);
         keyWords.put("integer",  TokenType.INTEGERSYM);
         keyWords.put("mod",      TokenType.MODSYM);
@@ -85,6 +93,8 @@ public enum TokenType {
         keyWords.put("read",     TokenType.READSYM);
         keyWords.put("readln",   TokenType.READLNSYM);
         keyWords.put("then",     TokenType.THENSYM);
+        keyWords.put("to",       TokenType.TOSYM);
+        keyWords.put("true",     TokenType.TRUESYM);
         keyWords.put("var",      TokenType.VARSYM);
         keyWords.put("while",    TokenType.WHILESYM);
         keyWords.put("write",    TokenType.WRITESYM);
@@ -172,6 +182,29 @@ public enum TokenType {
             return true;
         }
         return is1CharOperator(ch1);
+    }
+
+    public boolean isRelationalOperator() {
+        if( this == TokenType.EQUAL ) {
+            return true;
+        }
+        else if( this == TokenType.NOTEQUAL ) {
+            return true;
+        }
+        else if( this == TokenType.LESSTHAN ) {
+            return true;
+        }
+        else if( this == TokenType.LESSEQUAL ) {
+            return true;
+        }
+        else if( this == TokenType.GREATER ) {
+            return true;
+        }
+        else if( this == TokenType.GREATEREQUAL ) {
+            return true;
+        }
+
+        return false;
     }
 
     public static boolean isLessThanOrEqual(char ch1, char ch2) {
