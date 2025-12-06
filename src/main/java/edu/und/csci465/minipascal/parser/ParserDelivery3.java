@@ -53,7 +53,12 @@ public class ParserDelivery3 implements IParser {
 
     public String runInterpreter() {
         TACInterpreter interpreter = new TACInterpreter(tac);
-        return interpreter.run();
+        try {
+            return interpreter.run();
+        }
+        catch (Exception ex) {
+            return interpreter.evaluateBooleanExpr();
+        }
     }
 
     private void parseProgram() {
@@ -92,7 +97,7 @@ public class ParserDelivery3 implements IParser {
 
     private void error(String msg) {
         Position position = lookahead.getPosition();
-        throw new RuntimeException("Parse error: " + msg + " at [Line:" + (position.getLineNumber()+1) + ",Column:" + (position.getColumnNumber()+1) + "]" );
+        throw new RuntimeException("Parse error: [" + msg + "] at [Line:" + (position.getLineNumber()+1) + ",Column:" + (position.getColumnNumber()+1) + "]" );
     }
 
     private String newTemp() {
@@ -235,7 +240,8 @@ public class ParserDelivery3 implements IParser {
         consume(TokenType.ASSIGN);
 
         if(name.equals("flag")) {
-            parseBoolExpr();
+            String src = parseBoolExpr();
+            emit("assign", src, null, name);
         }
         else {
             String src = parseExpr();          // src is a var, number, or temp
@@ -382,65 +388,140 @@ public class ParserDelivery3 implements IParser {
         }
     }
 
-    private void parseBoolExpr() {
-        parseBoolNot();
+    private String parseBoolExpr() {
+        String prev = parseBoolNot();
+        //System.out.println(left);
+
         while (lookahead.getType() == TokenType.ORSYM || lookahead.getType() == TokenType.ANDSYM) {
+            String operator = lookahead.getLexeme();
             consume(lookahead.getType());
-            parseBoolNot();
+            String temp = parseBoolNot();
+
+            String t = newTemp();
+            emit(operator, prev, temp, t);
+            prev = t;
         }
+        return prev;
     }
 
-    void parseBoolOr() {
-        parseBoolAnd();
-        while (lookahead.getType() == TokenType.ORSYM) {
-            consume(TokenType.ORSYM);
-        }
-    }
+//    void parseBoolOr() {
+//        parseBoolAnd();
+//        while (lookahead.getType() == TokenType.ORSYM) {
+//            consume(TokenType.ORSYM);
+//        }
+//    }
+//
+//    void parseBoolAnd() {
+//        parseBoolNot();
+//        while (lookahead.getType() == TokenType.ANDSYM) {
+//            consume(TokenType.ANDSYM);
+//            parseBoolNot();
+//        }
+//    }
 
-    void parseBoolAnd() {
-        parseBoolNot();
-        while (lookahead.getType() == TokenType.ANDSYM) {
-            consume(TokenType.ANDSYM);
-            parseBoolNot();
-        }
-    }
-
-    void parseBoolNot() {
+    String parseBoolNot() {
         if (lookahead.getType() == TokenType.NOTSYM) {
             consume(TokenType.NOTSYM);
         }
-        parseBoolAtom();
+        String left = parseBoolAtom();
+        return left;
     }
 
-    void parseBoolAtom() {
+    String parseBoolAtom() {
         if (lookAheadIs(TokenType.TRUESYM) ) {
             consume(TokenType.TRUESYM);
-            return;
+            String t = newTemp();
+            emit("assign", "true", null, t); // t = literal
+            return t;
         }
         if (lookAheadIs(TokenType.FALSESYM) ) {
             consume(TokenType.FALSESYM);
-            return;
+            String t = newTemp();
+            emit("assign", "false", null, t); // t = literal
+            return t;
         }
 
         if (lookAheadIs(TokenType.LPAREN)) {
             consume(TokenType.LPAREN);
-            parseBoolExpr();
+            String left = parseBoolExpr();
             consume(TokenType.RPAREN);
-            return;
+            return left;
         }
 
         // relational or "expr <> 0"
-        String left = parseFactor();
+        String left = parseBooleanFactor();
 
         if (lookahead.getType().isRelationalOperator()) {
+            String operator = lookahead.getLexeme();
             consume(lookahead.getType());
-            String right = parseFactor();
+            String right = parseBooleanFactor();
+
+            String t = newTemp();
+            emit(operator, left, right, t);
+            return t;
         } else {
             // boolean context: treat expression as (expr <> 0)
             //TODO
         }
+        return left;
     }
 
+    private String parseBooleanFactor() {
+        String typeName = lookahead.getType().name();
+        switch (typeName) {
+            case "IDENTIFIER": {
+                String name = lookahead.getLexeme();
+                consume(TokenType.IDENTIFIER);
+                ensureDeclared(name);
+
+                if(lookahead.getType() == TokenType.LBRACK ) {
+                    consume(TokenType.LBRACK);
+                    if(lookahead.getType() == TokenType.NUMBER ) {
+                        consume(TokenType.NUMBER);                          //How do you process the index?
+                    }
+                    else if(lookahead.getType() == TokenType.IDENTIFIER ) {
+                        consume(TokenType.IDENTIFIER);                      //How do you process the index?
+                    }
+                    consume(TokenType.RBRACK);
+                }
+
+                return name;
+            }
+            case "NUMBER": {
+                int v = lookahead.getValue();
+                consume(TokenType.NUMBER);
+                String t = newTemp();
+                emit("assign", String.valueOf(v), null, t); // t = literal
+                return t;
+            }
+            case "TRUESYM":
+                consume(TokenType.TRUESYM);
+
+                String t = newTemp();
+                emit("assign", "true", null, t); // t = literal
+
+                return "true";
+            case "FALSESYM":
+                consume(TokenType.TRUESYM);
+                String t1 = newTemp();
+                emit("assign", "false", null, t1);
+                return "false";
+            case "LITCHAR":
+                String litChar = lookahead.getLexeme();
+                String t2 = newTemp();
+                emit("assign", litChar, null, t2);
+                consume(TokenType.LITCHAR);
+                return litChar;
+            case "LPAREN":
+                consume(TokenType.LPAREN);
+                String inner = parseBoolExpr();
+                consume(TokenType.RPAREN);
+                return inner;
+            default:
+                error("Boolean Expression expected");
+                return null; // unreachable
+        }
+    }
 
     void parseWhileStmt() {
         consume(TokenType.WHILESYM);

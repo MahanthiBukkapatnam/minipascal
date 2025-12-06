@@ -27,6 +27,18 @@ class TACInstr {
                 case "*":
                 case "/":
                     return result + " = " + arg1 + " " + op + " " + arg2;
+                case "and":
+                    return result + " = " + arg1 + " and " + arg2;
+                case "or":
+                    return result + " = " + arg1 + " or " + arg2;
+                case "GREATER":
+                    return result + " = " + arg1 + " > " + arg2;
+                case "GREATEREQUAL":
+                    return result + " = " + arg1 + " >= " + arg2;
+                case "LESSTHAN":
+                    return result + " = " + arg1 + " < " + arg2;
+                case "LESSEQUAL":
+                    return result + " = " + arg1 + " <= " + arg2;
                 case "read":
                     return "read " + result;
                 case "print":
