@@ -216,6 +216,9 @@ public class ParserDelivery3 implements IParser {
             case "FORSYM":
                 parseForStmt();
                 break;
+            case "IFSYM":
+                parseIfStmt();
+                break;
             default:
                 error("Statement expected");
         }
@@ -290,6 +293,7 @@ public class ParserDelivery3 implements IParser {
         else {
             emit("print", "", null, null);
         }
+        //consume(TokenType.SEMICOLON);
     }
 
     // expr ::= term ( ('+' | '-') term)*
@@ -404,20 +408,6 @@ public class ParserDelivery3 implements IParser {
         return prev;
     }
 
-//    void parseBoolOr() {
-//        parseBoolAnd();
-//        while (lookahead.getType() == TokenType.ORSYM) {
-//            consume(TokenType.ORSYM);
-//        }
-//    }
-//
-//    void parseBoolAnd() {
-//        parseBoolNot();
-//        while (lookahead.getType() == TokenType.ANDSYM) {
-//            consume(TokenType.ANDSYM);
-//            parseBoolNot();
-//        }
-//    }
 
     String parseBoolNot() {
         if (lookahead.getType() == TokenType.NOTSYM) {
@@ -525,7 +515,6 @@ public class ParserDelivery3 implements IParser {
 
     void parseWhileStmt() {
         consume(TokenType.WHILESYM);
-        //parseConditional();
         parseBoolExpr();
 
         consume(TokenType.DOSYM);
@@ -556,13 +545,29 @@ public class ParserDelivery3 implements IParser {
     }
 
 
-    void parseConditional() {
-        parseExpr();
-        if (lookahead.getType().isRelationalOperator()) {   //This is very rudimentary. It cannot handle complex boolean expressions.
-            consume(lookahead.getType());
+    void parseIfStmt() {
+        consume(TokenType.IFSYM);
+        parseBoolExpr();
+        consume(TokenType.THENSYM);
+
+        if(lookahead.getType() == TokenType.BEGINSYM ) {
+            parseBlock();
         }
-        parseExpr();
+        else {
+            parseStatement();
+        }
+
+        if(lookahead.getType() == TokenType.ELSESYM ) {
+            consume(TokenType.ELSESYM);
+            if(lookahead.getType() == TokenType.BEGINSYM ) {
+                parseBlock();
+            }
+            else {
+                parseStatement();
+            }
+        }
     }
+
 }
 
 
