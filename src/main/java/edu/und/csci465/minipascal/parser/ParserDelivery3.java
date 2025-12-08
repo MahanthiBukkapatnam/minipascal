@@ -5,10 +5,7 @@ import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import edu.und.csci465.minipascal.symboltable.Token;
 import edu.und.csci465.minipascal.symboltable.TokenType;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ParserDelivery3 implements IParser {
 
@@ -17,8 +14,10 @@ public class ParserDelivery3 implements IParser {
 
     // symbol table: store declared variables (no types needed for now)
     private final Set<String> variables = new LinkedHashSet<>();
+    private final Map<String, VariableType> variableTypeMap = new HashMap<>();
 
     private int tempCount = 0;
+    private int locatorCount = 0;
 
     // generated TAC
     private final List<TACInstr> tac = new ArrayList<>();
@@ -49,6 +48,11 @@ public class ParserDelivery3 implements IParser {
             System.out.println(ex.getMessage());
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public List<TACInstr> getTac() {
+        return tac;
     }
 
     public String runInterpreter() {
@@ -105,6 +109,11 @@ public class ParserDelivery3 implements IParser {
         return "t" + tempCount;
     }
 
+    private String newLocator() {
+        locatorCount++;
+        return "L" + locatorCount;
+    }
+
     private void emit(String op, String a1, String a2, String res) {
         tac.add(new TACInstr(op, a1, a2, res));
     }
@@ -124,10 +133,9 @@ public class ParserDelivery3 implements IParser {
     }
 
     private void parseVarDecl() {
-
         List<String> names = new ArrayList<>();
-
-        names.add(expectId());
+        String id = expectId();
+        names.add(id);
 
         while (match(TokenType.COMMA)) {
             names.add(expectId());
@@ -135,14 +143,18 @@ public class ParserDelivery3 implements IParser {
 
         consume(TokenType.COLON);
 
+        VariableType variableType = null;
         if(lookahead.getType() == TokenType.INTEGERSYM) {
             consume(TokenType.INTEGERSYM);
+            variableType = VariableType.INTEGER;
         }
         else if(lookahead.getType() == TokenType.CHARSYM) {
             consume(TokenType.CHARSYM);
+            variableType = VariableType.CHAR;
         }
         else if(lookahead.getType() == TokenType.BOOLEANSYM) {
             consume(TokenType.BOOLEANSYM);
+            variableType = VariableType.BOOLEAN;
         }
         else if(lookahead.getType() == TokenType.ARRAYSYM) {
             consume(TokenType.ARRAYSYM);
@@ -154,6 +166,7 @@ public class ParserDelivery3 implements IParser {
             consume(TokenType.RBRACK);
             consume(TokenType.OFSYM);
             consume(TokenType.INTEGERSYM);
+            variableType = VariableType.INTEGER_ARRAY;
         }
 
         consume(TokenType.SEMICOLON);
@@ -163,6 +176,7 @@ public class ParserDelivery3 implements IParser {
                 error("Duplicate variable: " + n);
             }
             variables.add(n);
+            variableTypeMap.put(n,variableType);
         }
     }
 
@@ -242,13 +256,14 @@ public class ParserDelivery3 implements IParser {
 
         consume(TokenType.ASSIGN);
 
-        if(name.equals("flag")) {
+        if( variableTypeMap.get(name) == VariableType.BOOLEAN) {
             String src = parseBoolExpr();
+            emit("declare", name, "boolean", null);
             emit("assign", src, null, name);
         }
         else {
             String src = parseExpr();          // src is a var, number, or temp
-            // name = src
+            emit("declare", name, "integer", null);
             emit("assign", src, null, name);
         }
     }
@@ -307,7 +322,7 @@ public class ParserDelivery3 implements IParser {
             consume(op);
             String right = parseTerm();
             String t = newTemp();
-            
+            emit("declare", t, "integer", null);
             if (op == TokenType.PLUS) {
                 emit("+", left, right, t);
             } else {
@@ -328,6 +343,7 @@ public class ParserDelivery3 implements IParser {
             consume(op);
             String right = parseFactor();
             String t = newTemp();
+            emit("declare", t, "integer", null);
             if (op == TokenType.TIMES) {
                 emit("*", left, right, t);
             } else {
@@ -364,6 +380,7 @@ public class ParserDelivery3 implements IParser {
                 int v = lookahead.getValue();
                 consume(TokenType.NUMBER);
                 String t = newTemp();
+                emit("declare", t, "integer", null);
                 emit("assign", String.valueOf(v), null, t); // t = literal
                 return t;
             }
@@ -402,6 +419,7 @@ public class ParserDelivery3 implements IParser {
             String temp = parseBoolNot();
 
             String t = newTemp();
+            emit("declare", t, "boolean", null);
             emit(operator, prev, temp, t);
             prev = t;
         }
@@ -421,12 +439,14 @@ public class ParserDelivery3 implements IParser {
         if (lookAheadIs(TokenType.TRUESYM) ) {
             consume(TokenType.TRUESYM);
             String t = newTemp();
+            emit("declare", t, "boolean", null);
             emit("assign", "true", null, t); // t = literal
             return t;
         }
         if (lookAheadIs(TokenType.FALSESYM) ) {
             consume(TokenType.FALSESYM);
             String t = newTemp();
+            emit("declare", t, "boolean", null);
             emit("assign", "false", null, t); // t = literal
             return t;
         }
@@ -447,6 +467,7 @@ public class ParserDelivery3 implements IParser {
             String right = parseBooleanFactor();
 
             String t = newTemp();
+            emit("declare", t, "boolean", null);
             emit(operator, left, right, t);
             return t;
         } else {
@@ -481,6 +502,7 @@ public class ParserDelivery3 implements IParser {
                 int v = lookahead.getValue();
                 consume(TokenType.NUMBER);
                 String t = newTemp();
+                emit("declare", t, "integer", null);
                 emit("assign", String.valueOf(v), null, t); // t = literal
                 return t;
             }
@@ -513,9 +535,46 @@ public class ParserDelivery3 implements IParser {
         }
     }
 
+    void parseIfStmt() {
+        consume(TokenType.IFSYM);
+        String conditionalExpr = parseBoolExpr();
+        consume(TokenType.THENSYM);
+
+        String elseLocator = newLocator();
+        String endOfIfAndElseLocator = newLocator();
+        emit("IfZ", conditionalExpr, elseLocator,"");
+
+        if(lookahead.getType() == TokenType.BEGINSYM ) {
+            parseBlock();
+        }
+        else {
+            parseStatement();
+        }
+        emit("GOTO", endOfIfAndElseLocator, "","");
+
+        emit("Label", elseLocator, "","");
+        if(lookahead.getType() == TokenType.ELSESYM ) {
+            consume(TokenType.ELSESYM);
+            if(lookahead.getType() == TokenType.BEGINSYM ) {
+                parseBlock();
+            }
+            else {
+                parseStatement();
+            }
+        }
+        emit("Label", endOfIfAndElseLocator, "","");
+    }
+
     void parseWhileStmt() {
         consume(TokenType.WHILESYM);
-        parseBoolExpr();
+
+        String startLocator = newLocator();
+        emit("Label", startLocator, "","");
+
+        String conditionalExpr = parseBoolExpr();
+
+        String endLocator = newLocator();
+        emit("IfZ", conditionalExpr, endLocator,"");
 
         consume(TokenType.DOSYM);
         if(lookahead.getType() == TokenType.BEGINSYM ) {
@@ -524,8 +583,9 @@ public class ParserDelivery3 implements IParser {
         else {
             parseStatement();
         }
+        emit("GOTO", startLocator, "","");
+        emit("Label", endLocator, "","");
     }
-
 
     void parseForStmt() {
         consume(TokenType.FORSYM);
@@ -544,42 +604,5 @@ public class ParserDelivery3 implements IParser {
         }
     }
 
-
-    void parseIfStmt() {
-        consume(TokenType.IFSYM);
-        parseBoolExpr();
-        consume(TokenType.THENSYM);
-
-        if(lookahead.getType() == TokenType.BEGINSYM ) {
-            parseBlock();
-        }
-        else {
-            parseStatement();
-        }
-
-        if(lookahead.getType() == TokenType.ELSESYM ) {
-            consume(TokenType.ELSESYM);
-            if(lookahead.getType() == TokenType.BEGINSYM ) {
-                parseBlock();
-            }
-            else {
-                parseStatement();
-            }
-        }
-    }
-
-}
-
-
-class LValue {
-    final String base;     // variable/array name, e.g., "a"
-    final String index;    // TAC place for index, e.g., "t3" or "5" (null if scalar)
-
-    LValue(String base, String index) {
-        this.base = base;
-        this.index = index;
-    }
-
-    boolean isArrayElem() { return index != null; }
 }
 

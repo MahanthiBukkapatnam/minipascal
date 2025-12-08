@@ -3,9 +3,14 @@ var
     age     :   integer;
     flag    :   boolean;
 begin
-    age := 10;
+    age := 20;
+    flag := false;
 
     if age >= 18 then
-        writeln('Major');
+        flag := true
+    else
+        flag := false;
+
+    write(flag);
 
 end.

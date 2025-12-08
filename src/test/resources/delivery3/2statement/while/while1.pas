@@ -10,6 +10,6 @@ begin
         sum := sum + i;
         i := i + 1;
     end;
-    writeln('Sum of array values: ', sum);
-
+    { writeln('Sum of array values: ', sum); }
+    write(sum);
 end.

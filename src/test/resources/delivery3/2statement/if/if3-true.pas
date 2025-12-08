@@ -3,14 +3,17 @@ var
     age     :   integer;
     flag    :   boolean;
 begin
-    age := 10;
+    age := 100;
+    flag    :=  false;
 
     if age < 90 then
         begin
-            writeln('You are not yet 90 years old');
+            flag := false;
         end
     else
         begin
-            writeln('You qualify for a special price');
+            flag := true;
         end;
+
+    write(flag);
 end.

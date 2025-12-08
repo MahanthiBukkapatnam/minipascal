@@ -32,6 +32,11 @@ public class ParserDelivery2 implements IParser {
         return getSymbol;
     }
 
+    @Override
+    public List<TACInstr> getTac() {
+        return tac;
+    }
+
     public void process() {
         try {
             lookahead = getSymbol.getNextToken();

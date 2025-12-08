@@ -4,12 +4,19 @@ import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import edu.und.csci465.minipascal.symboltable.Token;
 import edu.und.csci465.minipascal.symboltable.TokenType;
 
+import java.util.List;
+
 public class Parser implements IParser {
 
     private GetSymbol getSymbol;
 
     public void setGetSymbol(GetSymbol getSymbol) {
         this.getSymbol = getSymbol;
+    }
+
+    @Override
+    public List<TACInstr> getTac() {
+        return null;
     }
 
     public GetSymbol getGetSymbol() {

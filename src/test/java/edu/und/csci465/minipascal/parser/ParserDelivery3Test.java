@@ -4,10 +4,10 @@ package edu.und.csci465.minipascal.parser;
 import edu.und.csci465.minipascal.lexer.InputOutputModule;
 import edu.und.csci465.minipascal.symboltable.GetSymbol;
 import edu.und.csci465.minipascal.util.FileUtil;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 class ParserDelivery3Test {
 
@@ -20,11 +20,13 @@ class ParserDelivery3Test {
     @Test
     void parse() {
         parseMiniPascalFile("src/test/resources/delivery3/full/sample1.pas");
+        generateTargetCode();
     }
 
     @Test
     void parseBooleanExpression() {
         parseMiniPascalFile("src/test/resources/delivery3/1boolean/booleanExpression.pas");
+        generateTargetCode();
     }
 
     @Nested
@@ -33,78 +35,117 @@ class ParserDelivery3Test {
         void parseBooleanExpression1() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/boolean1.pas");
             assertEquals("true\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
         void parseBooleanExpression2() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/boolean2.pas");
             assertEquals("false\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
         void parseBooleanExpression3() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/boolean3.pas");
             assertEquals("true\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
         void parseBooleanExpression4() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/boolean4.pas");
             assertEquals("true\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
         void parseBooleanExpression5() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/boolean5.pas");
             assertEquals("false\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
         void parseBooleanExpression6() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/boolean6.pas");
             assertEquals("false\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
         void parseBooleanExpressionWithAnd() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/booleanExprAnd.pas");
             assertEquals("false\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
         void parseBooleanExpressionWithOr() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/booleanExprOr.pas");
             assertEquals("true\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
         void parseBooleanExpressionWithAndPlusOr() {
             parseMiniPascalFile("src/test/resources/delivery3/1boolean/booleanExprAndPlusOr.pas");
             assertEquals("true\n", parser.runInterpreter() );
+            generateTargetCode();
         }
     }
 
     @Nested
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     class EvaluatingIfStatementsTests {
+
+        @Order(1)
         @Test
-        void parseIf1() {
-            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if1.pas");
+        void parseIf1False() {
+            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if1-false.pas");
+            generateTargetCode();
+        }
+        @Order(2)
+        @Test
+        void parseIf1True() {
+            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if1-true.pas");
+            generateTargetCode();
         }
 
+        @Order(3)
         @Test
-        void parseIf2() {
-            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if2.pas");
+        void parseIf2False() {
+            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if2-false.pas");
+            generateTargetCode();
+        }
+        @Order(4)
+        @Test
+        void parseIf2True() {
+            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if2-true.pas");
+            generateTargetCode();
         }
 
+        @Order(5)
         @Test
-        void parseIf31() {
-            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if3-1.pas");
+        void parseIf3False() {
+            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if3-false.pas");
+            generateTargetCode();
         }
 
+        @Order(6)
         @Test
-        void parseIf32() {
-            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if3-2.pas");
+        void parseIf3True() {
+            parseMiniPascalFile("src/test/resources/delivery3/2statement/if/if3-true.pas");
+            generateTargetCode();
         }
+    }
+
+    private void generateTargetCode() {
+        MasmGenerator masmGenerator = new MasmGenerator(parser.getTac());
+        System.out.println("Printing Target Code:");
+        System.out.println("--------------------------------------------");
+        System.out.println(masmGenerator.generateMasmCode());
+        System.out.println("--------------------------------------------");
     }
 
     @Nested
@@ -112,11 +153,19 @@ class ParserDelivery3Test {
         @Test
         void parseWhile1() {
             parseMiniPascalFile("src/test/resources/delivery3/2statement/while/while1.pas");
+            generateTargetCode();
         }
 
         @Test
         void parseWhile2() {
             parseMiniPascalFile("src/test/resources/delivery3/2statement/while/while2.pas");
+            generateTargetCode();
+        }
+
+        @Test
+        void parseWhileFactorial() {
+            parseMiniPascalFile("src/test/resources/delivery3/2statement/while/while-factorial.pas");
+            generateTargetCode();
         }
     }
 
@@ -151,12 +200,14 @@ class ParserDelivery3Test {
         @Test
         void parse() {
             parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr1.pas");
+            generateTargetCode();
         }
 
         @Test
         void parse2() {
             parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr2.pas");
             assertEquals("500\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
@@ -173,6 +224,7 @@ class ParserDelivery3Test {
                             "18\n" +
                             "5\n" +
                             "25\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
@@ -193,6 +245,7 @@ class ParserDelivery3Test {
                             "1\n" +
                             "0\n" +
                             "0\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
@@ -210,6 +263,7 @@ class ParserDelivery3Test {
                     "5\n" +
                     "2\n" +
                     "12\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
         @Test
@@ -231,6 +285,7 @@ class ParserDelivery3Test {
                     "-7\n" +
                     "2\n" +
                     "12\n", parser.runInterpreter() );
+            generateTargetCode();
         }
 
     }

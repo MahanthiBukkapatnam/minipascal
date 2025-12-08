@@ -102,6 +102,18 @@ class TACInterpreter {
                 case "print":
                     out.append(valueOf(i.arg1)).append("\n");
                     break;
+                case "declare":
+                    //FILLER
+                    break;
+                case "IfZ":
+                    //FILLER
+                    break;
+                case "GOTO":
+                    //FILLER
+                    break;
+                case "Label":
+                    //FILLER
+                    break;
                 default:
                     throw new RuntimeException("Unknown TAC op: " + i.op);
             }
@@ -143,4 +155,5 @@ class TACInterpreter {
 
         return intValueOf(nameOrLit);
     }
+
 }

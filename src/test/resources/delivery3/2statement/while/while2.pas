@@ -9,6 +9,7 @@ begin
     begin
         i := i + 1;
     end;
-    writeln('i: ', i);
+
+    write(i);
 
 end.
