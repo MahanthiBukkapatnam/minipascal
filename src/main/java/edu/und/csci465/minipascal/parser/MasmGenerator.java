@@ -95,6 +95,8 @@ public class MasmGenerator {
 
             if(instr.op.equals("declare")) {
             }
+            else if(instr.op.equals("declarePrompt")) {
+            }
             else if(instr.op.equals("assign")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 if(variableType.equals("integer")) {
