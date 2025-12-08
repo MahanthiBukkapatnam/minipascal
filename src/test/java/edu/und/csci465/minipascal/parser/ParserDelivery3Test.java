@@ -174,11 +174,19 @@ class ParserDelivery3Test {
         @Test
         void parseFor1() {
             parseMiniPascalFile("src/test/resources/delivery3/2statement/for/for1.pas");
+            generateTargetCode();
         }
 
         @Test
         void parseFor2() {
             parseMiniPascalFile("src/test/resources/delivery3/2statement/for/for2.pas");
+            generateTargetCode();
+        }
+
+        @Test
+        void parseFor3() {
+            parseMiniPascalFile("src/test/resources/delivery3/2statement/for/for3.pas");
+            generateTargetCode();
         }
     }
 

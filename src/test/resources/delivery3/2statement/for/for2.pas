@@ -14,5 +14,5 @@ begin
         n := n * 2;
     end;
 
-    writeln('n: ', n);
+    write(n);
 end.

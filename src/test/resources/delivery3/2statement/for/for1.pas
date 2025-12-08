@@ -12,5 +12,5 @@ begin
     for i := 1 to 5 do
         n := n * 2;
 
-    writeln('n: ', n);
+    write(n);
 end.

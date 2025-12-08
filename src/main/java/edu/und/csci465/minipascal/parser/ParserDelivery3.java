@@ -591,10 +591,21 @@ public class ParserDelivery3 implements IParser {
         consume(TokenType.FORSYM);
         consume(TokenType.IDENTIFIER);
         consume(TokenType.ASSIGN);
-        parseFactor();
+        String startVar = parseFactor();
+
+        String startLocator = newLocator();
+        emit("Label", startLocator, "","");
+
         consume(TokenType.TOSYM);
-        parseFactor();
+        String endVar = parseFactor();
         consume(TokenType.DOSYM);
+
+
+        String endLocator = newLocator();
+        String t = newTemp();
+        emit("declare", t, "boolean", null);
+        emit("LESSEQUAL", startVar, endVar, t);
+        emit("IfZ", t, endLocator,"");
 
         if(lookahead.getType() == TokenType.BEGINSYM ) {
             parseBlock();
@@ -602,6 +613,18 @@ public class ParserDelivery3 implements IParser {
         else {
             parseStatement();
         }
+
+        String incVar = newTemp();
+        emit("declare", incVar, "integer", null);
+        emit("assign", "1", null, incVar);
+
+        String temp = newTemp();
+        emit("declare", temp, "integer", null);
+        emit("+", startVar, incVar, temp);
+        emit("assign", temp, null, startVar);
+
+        emit("GOTO", startLocator, "","");
+        emit("Label", endLocator, "","");
     }
 
 }
