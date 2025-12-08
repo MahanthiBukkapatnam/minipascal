@@ -2,8 +2,7 @@ program Demo;
 var
   x, y, z : integer;
 begin
-  readln(x);
-  readln(y);
-  z := (1 * 2) / (3 * 4);
+
+  z := (1 * 2) / (3 * 4);   {  2 / 12 = 0 }
   writeln(z)
 end.

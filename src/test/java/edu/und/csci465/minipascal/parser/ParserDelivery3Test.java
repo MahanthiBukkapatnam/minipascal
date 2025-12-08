@@ -97,7 +97,7 @@ class ParserDelivery3Test {
 
     @Nested
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-    class EvaluatingIfStatementsTests {
+    class IfStatementsTests {
 
         @Order(1)
         @Test
@@ -149,7 +149,7 @@ class ParserDelivery3Test {
     }
 
     @Nested
-    class EvaluatingWhileStatementsTests {
+    class WhileStatementsTests {
         @Test
         void parseWhile1() {
             parseMiniPascalFile("src/test/resources/delivery3/2statement/while/while1.pas");
@@ -170,7 +170,7 @@ class ParserDelivery3Test {
     }
 
     @Nested
-    class EvaluatingForStatementsTests {
+    class ForStatementsTests {
         @Test
         void parseFor1() {
             parseMiniPascalFile("src/test/resources/delivery3/2statement/for/for1.pas");
@@ -191,6 +191,15 @@ class ParserDelivery3Test {
     }
 
     @Nested
+    class ReadWriteStatementsTests {
+        @Test
+        void parseReadWrite1() {
+            parseMiniPascalFile("src/test/resources/delivery3/3-read-write/readWrite1.pas");
+            generateTargetCode();
+        }
+    }
+
+    @Nested
     class RegressionTests {
         @Nested
         class InvalidCases {
@@ -206,15 +215,83 @@ class ParserDelivery3Test {
         }
 
         @Test
-        void parse() {
+        void parseExpr1() {
             parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr1.pas");
+            assertEquals("300\n", parser.runInterpreter() );
             generateTargetCode();
         }
 
         @Test
-        void parse2() {
+        void parseExpr2() {
             parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr2.pas");
             assertEquals("500\n", parser.runInterpreter() );
+            generateTargetCode();
+        }
+
+        @Test
+        void parseExpr3() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr3.pas");
+            assertEquals("600\n", parser.runInterpreter() );
+            generateTargetCode();
+        }
+
+        @Test
+        void parseExpr4() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr4.pas");
+            assertEquals("-300\n", parser.runInterpreter() );
+            generateTargetCode();
+        }
+
+        @Test
+        void parseExpr5() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr5.pas");
+            assertEquals("3\n", parser.runInterpreter() );
+            generateTargetCode();
+        }
+
+        @Test
+        void parseExpr6() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr6.pas");
+            assertEquals("0\n", parser.runInterpreter() );
+            generateTargetCode();
+        }
+
+        @Test
+        void parseExpr7() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr7.pas");
+            assertEquals("4\n", parser.runInterpreter() );
+            generateTargetCode();
+        }
+
+        @Test
+        void parseExpr8() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr8.pas");
+            assertEquals("4\n", parser.runInterpreter() );
+            generateTargetCode();
+        }
+
+        @Test
+        void parseExpr9() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr9.pas");
+            assertEquals(
+                    "2\n" +
+                            "14\n" +
+                            "11\n" +
+                            "67\n" +
+                            "-23\n", parser.runInterpreter() );
+            generateTargetCode();
+        }
+
+        @Test
+        void parseExpr10() {
+            parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/expr10.pas");
+            assertEquals(
+                    "3\n" +
+                            "-1\n" +
+                            "-6\n" +
+                            "-6\n" +
+                            "600\n", parser.runInterpreter() );
+            System.out.println(parser.runInterpreter());
             generateTargetCode();
         }
 
@@ -263,7 +340,8 @@ class ParserDelivery3Test {
             System.out.println( "Output of Interpreter:");
             System.out.println( parser.runInterpreter() );
 
-            assertEquals("-9\n" +
+            assertEquals(
+                    "-9\n" +
                     "-1\n" +
                     "2\n" +
                     "-12\n" +
@@ -279,7 +357,8 @@ class ParserDelivery3Test {
             parseMiniPascalFile("src/test/resources/delivery2/expressions/mixed/parenthesis.pas");
             System.out.println( "Output of Interpreter:");
             System.out.println( parser.runInterpreter() );
-            assertEquals("9\n" +
+            assertEquals(
+                    "9\n" +
                     "5\n" +
                     "-3\n" +
                     "-1\n" +

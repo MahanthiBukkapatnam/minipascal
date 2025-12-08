@@ -50,21 +50,24 @@ public class MasmGenerator {
 
         sb.append(".data\n");
         for (TACInstr instr : code) {
-            if(instr.op.equals("declare")) {
+            if (instr.op.equals("declare")) {
                 //Is it already declared?
-                if(!typeInfo.keySet().contains(instr.arg1)) {
-                    typeInfo.put(instr.arg1,instr.arg2);
+                if (!typeInfo.keySet().contains(instr.arg1)) {
+                    typeInfo.put(instr.arg1, instr.arg2);
                     String variable = instr.arg1;
-                    if(variable.equalsIgnoreCase("c")) {
+                    if (variable.equalsIgnoreCase("c")) {
                         variable = TACInstr.MY_C_VARIABLE;
                     }
-                    if(instr.arg2.equals("integer")) {
+                    if (instr.arg2.equals("integer")) {
                         sb.append("    " + variable + "    DWORD ?\n");
-                    }
-                    else if(instr.arg2.equals("boolean")) {
+                    } else if (instr.arg2.equals("boolean")) {
+                        sb.append("    " + variable + "    BYTE ?\n");
+                    } else if (instr.arg2.equals("char")) {
                         sb.append("    " + variable + "    BYTE ?\n");
                     }
                 }
+            } else if (instr.op.equals("declarePrompt")) {
+                //sb.append("    " + instr.arg1 + " BYTE \"" + instr.arg2 + "\",0\n");
             }
         }
         sb.append("\n");
@@ -88,12 +91,12 @@ public class MasmGenerator {
         sb.append("\n");
 
         for (TACInstr instr : code) {
+            String variableType = typeInfo.get(instr.result);
 
             if(instr.op.equals("declare")) {
             }
             else if(instr.op.equals("assign")) {
                 sb.append("\t;" + instr.toString() + "\n");
-                String variableType = typeInfo.get(instr.result);
                 if(variableType.equals("integer")) {
                     if( integerValue(instr.arg1) ) {
                         sb.append("\tmov " + instr.result + ", " + instr.arg1 + "\n");
@@ -144,6 +147,25 @@ public class MasmGenerator {
                 sb.append("\tCDQ" + "\n");
                 sb.append("\tIDIV " + instr.arg2 + "\n");
                 sb.append("\tmov " + instr.result + ", eax\n");
+                sb.append("\n");
+            }
+            else if(instr.op.equals("EQUAL")) {
+                sb.append("\t;" + instr.toString() + "\n");
+                String arg1Type = typeInfo.get(instr.arg1);
+
+                if(arg1Type.equals("char")) {
+                    sb.append("\tmov     al, "  + instr.arg1  + "      ; load ch\n");
+                    sb.append("\tcmp     al, '" + instr.arg2 +  "'     ; compare with char literal \n");
+                    sb.append("\tsetz    al            ; AL = 1 if equal, else 0\n");
+                    sb.append("\tmov     " + instr.result + ", al        ; store boolean result\n");
+                }
+                else if(arg1Type.equals("integer")) {
+                    sb.append("\tmov     al, "  + instr.arg1  + "      ; load ch\n");
+                    sb.append("\tcmp     al, '" + instr.arg2 +  "'     ; compare with char literal \n");
+                    sb.append("\tsetz    al            ; AL = 1 if equal, else 0\n");
+                    sb.append("\tmovzx   eax, al\n");
+                    sb.append("\tmov     " + instr.result + ", al        ; store boolean result\n");
+                }
                 sb.append("\n");
             }
             else if(instr.op.equals("LESSTHAN")) {
@@ -206,6 +228,13 @@ public class MasmGenerator {
             else if(instr.op.equals("GOTO")) {
                 sb.append("\tjmp " + instr.arg1 + "\n");
                 sb.append("\n");
+            }
+            else if(instr.op.equals("read")) {
+//                sb.append("\t;" + instr.toString() + "\n");
+//                sb.append("\tmov eax, " + instr.arg1 + "\n");
+//                sb.append("\tcall WriteDec\n");
+//                //sb.append("\tcall Crlf\n");
+//                sb.append("\n");
             }
             else if(instr.op.equals("print")) {
                 sb.append("\t;" + instr.toString() + "\n");

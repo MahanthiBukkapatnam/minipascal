@@ -18,6 +18,7 @@ public class ParserDelivery3 implements IParser {
 
     private int tempCount = 0;
     private int locatorCount = 0;
+    private int promptCount=0;
 
     // generated TAC
     private final List<TACInstr> tac = new ArrayList<>();
@@ -112,6 +113,11 @@ public class ParserDelivery3 implements IParser {
     private String newLocator() {
         locatorCount++;
         return "L" + locatorCount;
+    }
+
+    private String newPrompt() {
+        promptCount++;
+        return "prompt" + promptCount;
     }
 
     private void emit(String op, String a1, String a2, String res) {
@@ -286,6 +292,8 @@ public class ParserDelivery3 implements IParser {
         String v = parseExpr();
         consume(TokenType.RPAREN);
         // print v
+        String prompt = newPrompt();
+        emit("declarePrompt", prompt, v, null);
         emit("print", v, null, null);
     }
 
@@ -521,6 +529,7 @@ public class ParserDelivery3 implements IParser {
             case "LITCHAR":
                 String litChar = lookahead.getLexeme();
                 String t2 = newTemp();
+                emit("declare", t2, "char", null);
                 emit("assign", litChar, null, t2);
                 consume(TokenType.LITCHAR);
                 return litChar;
