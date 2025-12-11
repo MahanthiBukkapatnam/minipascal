@@ -387,7 +387,7 @@ class ParserDelivery3Test {
 
     void parseMiniPascalFile(String fileName) {
         try {
-            //FileUtil.printFile(fileName);
+            FileUtil.printFile(fileName);
 
             InputOutputModule ioModule = new InputOutputModule();
             ioModule.readFile(fileName);
@@ -397,11 +397,11 @@ class ParserDelivery3Test {
 
             parser = makeParserObject();
             parser.setGetSymbol(getsym);
-//            System.out.println("Printing the Intermediate Code:");
-//            System.out.println("--------------------------------------------");
+            System.out.println("Printing the Intermediate Code:");
+            System.out.println("--------------------------------------------");
             parser.process();
-//            System.out.println("--------------------------------------------");
-//            System.out.println();
+            System.out.println("--------------------------------------------");
+            System.out.println();
             System.out.println();
         }
         catch(Exception ex) {

@@ -41,8 +41,8 @@ public class ParserDelivery3 implements IParser {
             lookahead = getSymbol.getNextToken();
             symbolTable.openScope(0);
             parseProgram();
-//            ThreeAddressCode threeAddressCode = new ThreeAddressCode(tac, symbolTable);
-//            threeAddressCode.print();
+            ThreeAddressCode threeAddressCode = new ThreeAddressCode(tac, symbolTable);
+            threeAddressCode.print();
             symbolTable.closeScope();
         }
         catch(Exception ex) {
