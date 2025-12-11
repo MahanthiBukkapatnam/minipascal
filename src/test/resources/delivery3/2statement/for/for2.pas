@@ -6,7 +6,7 @@ var
     sum       : integer;
     values    : array[1..5] of integer;
 begin
-    n := 10;
+    n := 2;
 
     { For loop: double each element }
     for i := 1 to 5 do

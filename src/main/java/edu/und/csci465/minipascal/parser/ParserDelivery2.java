@@ -42,7 +42,7 @@ public class ParserDelivery2 implements IParser {
             lookahead = getSymbol.getNextToken();
             parseProgram();
 
-            ThreeAddressCode threeAddressCode = new ThreeAddressCode(tac, variables);
+            ThreeAddressCode2 threeAddressCode = new ThreeAddressCode2(tac, variables);
             threeAddressCode.print();
         }
         catch(Exception ex) {

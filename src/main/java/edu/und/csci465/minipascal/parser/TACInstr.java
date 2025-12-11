@@ -1,7 +1,18 @@
 package edu.und.csci465.minipascal.parser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class TACInstr {
     public static String MY_C_VARIABLE = "__my_c__";
+    public static String MY_CH_VARIABLE = "__my_ch__";
+
+    public static Map<String, String> MY_VARIABLE_MAP = new HashMap();
+    static {
+        MY_VARIABLE_MAP.put("c", MY_C_VARIABLE);
+        MY_VARIABLE_MAP.put("ch", MY_CH_VARIABLE);
+    }
+
     // For binary: result = arg1 op arg2  (op in {"+", "*", "/"})
     // For assign: result = arg1          (op = "assign")
     // For read:   read result            (op = "read")
@@ -16,18 +27,22 @@ class TACInstr {
         this.arg1 = arg1;
         this.arg2 = arg2;
         this.result = result;
-        handleCVariable();
+        handleMasmVariables();
     }
-    public void handleCVariable() {
-        if("C".equalsIgnoreCase(this.arg1)) {
-            this.arg1 = TACInstr.MY_C_VARIABLE;
+    public void handleMasmVariables() {
+        this.arg1 = getMappedValue(this.arg1);
+        this.arg2 = getMappedValue(this.arg2);
+        this.result = getMappedValue(this.result);
+    }
+
+    private String getMappedValue(String value) {
+        if(value==null) {
+            return null;
         }
-        if("C".equalsIgnoreCase(this.arg2)) {
-            this.arg2 = TACInstr.MY_C_VARIABLE;
+        if (MY_VARIABLE_MAP.get(value.toLowerCase()) != null) {
+            return MY_VARIABLE_MAP.get(value.toLowerCase());
         }
-        if("C".equalsIgnoreCase(this.result)) {
-            this.result = TACInstr.MY_C_VARIABLE;
-        }
+        return value;
     }
 
     public String toMyString() {

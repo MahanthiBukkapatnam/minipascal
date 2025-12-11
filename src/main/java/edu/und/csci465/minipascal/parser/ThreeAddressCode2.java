@@ -1,20 +1,18 @@
 package edu.und.csci465.minipascal.parser;
 
-import edu.und.csci465.minipascal.symboltable.SymbolTable;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ThreeAddressCode {
+public class ThreeAddressCode2 {
 
     private List<TACInstr> tac = new ArrayList<>();
-    private SymbolTable symbolTable = new SymbolTable();
+    private Set<String> variables = new HashSet<>();
 
-    public ThreeAddressCode(List<TACInstr> tac, SymbolTable symbolTable) {
+    public ThreeAddressCode2(List<TACInstr> tac, Set<String> variables) {
         this.tac = tac;
-        this.symbolTable = symbolTable;
+        this.variables = variables;
     }
 
     public void print() {
@@ -26,9 +24,8 @@ public class ThreeAddressCode {
     private void printPrologue() {
         System.out.println("begin_program TAC");
         System.out.println();
-        for (String variable : symbolTable.topScope.getLocals().keySet()) {
-            //TODO: Based on the Type, need to generate MASM code
-            System.out.println("Alloc " + variable + " 4   ;TODO: Based on the Type, need to generate MASM code");
+        for (String variable : variables) {
+            System.out.println("Alloc " + variable + " 4");  //Need to create a TAC for this.
         }
         System.out.println();
     }

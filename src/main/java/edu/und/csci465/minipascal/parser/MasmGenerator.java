@@ -19,11 +19,11 @@ public class MasmGenerator {
     public String generateMasmCode() {
         StringBuffer sb = new StringBuffer();
 
-        sb.append( generateHeader() );
-        sb.append( dataSection() );
-        sb.append( startProc() );
-        sb.append( procBody() );
-        sb.append( endProc() );
+        sb.append(generateHeader());
+        sb.append(dataSection());
+        sb.append(startProc());
+        sb.append(procBody());
+        sb.append(endProc());
 
         return sb.toString();
     }
@@ -49,6 +49,8 @@ public class MasmGenerator {
         StringBuffer sb = new StringBuffer();
 
         sb.append(".data\n");
+        sb.append("    buf BYTE 128 DUP(0)\n");
+
         for (TACInstr instr : code) {
             if (instr.op.equals("declare")) {
                 //Is it already declared?
@@ -58,16 +60,18 @@ public class MasmGenerator {
                     if (variable.equalsIgnoreCase("c")) {
                         variable = TACInstr.MY_C_VARIABLE;
                     }
-                    if (instr.arg2.equals("integer")) {
+                    if (instr.arg2.equals("INTEGER")) {
                         sb.append("    " + variable + "    DWORD ?\n");
-                    } else if (instr.arg2.equals("boolean")) {
+                    } else if (instr.arg2.equals("BOOLEAN")) {
                         sb.append("    " + variable + "    BYTE ?\n");
-                    } else if (instr.arg2.equals("char")) {
+                    } else if (instr.arg2.equals("CHAR")) {
                         sb.append("    " + variable + "    BYTE ?\n");
+                    } else if (instr.arg2.equals("INTEGER_ARRAY")) {
+                        sb.append("    " + variable + "    SDWORD " + instr.result + " DUP(?)\n");
                     }
                 }
             } else if (instr.op.equals("declarePrompt")) {
-                //sb.append("    " + instr.arg1 + " BYTE \"" + instr.arg2 + "\",0\n");
+                sb.append("    " + instr.arg1 + " BYTE \"" + instr.arg2 + "\",0\n");
             }
         }
         sb.append("\n");
@@ -93,159 +97,204 @@ public class MasmGenerator {
         for (TACInstr instr : code) {
             String variableType = typeInfo.get(instr.result);
 
-            if(instr.op.equals("declare")) {
-            }
-            else if(instr.op.equals("declarePrompt")) {
-            }
-            else if(instr.op.equals("assign")) {
+            if (instr.op.equals("declare")) {
+            } else if (instr.op.equals("declarePrompt")) {
+            } else if (instr.op.equals("assignArray")) {
                 sb.append("\t;" + instr.toString() + "\n");
-                if(variableType.equals("integer")) {
-                    if( integerValue(instr.arg1) ) {
+                sb.append("\tmov  eax, " + instr.arg2 + "            ; eax = index (1..5)\n");
+                sb.append("\tmov  edx, " + instr.arg1 + "            ; edx = value to store\n");
+                sb.append("\tmov  " + instr.result + "[eax*4], edx ; values[index] = value   (1-based direct)\n");
+                sb.append("\n");
+            } else if (instr.op.equals("assign")) {
+                sb.append("\t;" + instr.toString() + "\n");
+                if (variableType.equals("INTEGER")) {
+                    if (integerValue(instr.arg1)) {
                         sb.append("\tmov " + instr.result + ", " + instr.arg1 + "\n");
-                    }
-                    else {
+                    } else {
                         sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                         sb.append("\tmov " + instr.result + ", eax\n");
                     }
-                }
-                else if(variableType.equals("boolean")) {
-                    if(instr.arg1.equals("true") ) {
+                } else if (variableType.equals("BOOLEAN")) {
+                    if (instr.arg1.equals("true")) {
                         sb.append("\tmov " + instr.result + ", 1\n");
-                    }
-                    else if(instr.arg1.equals("false") ) {
+                    } else if (instr.arg1.equals("false")) {
                         sb.append("\tmov " + instr.result + ", 0\n");
-                    }
-                    else {
+                    } else {
                         sb.append("\tmov al" + ", " + instr.arg1 + "\n");
                         sb.append("\tmov " + instr.result + ", al\n");
                     }
                 }
                 sb.append("\n");
-            }
-            else if(instr.op.equals("+")) {
+            } else if (instr.op.equals("computeArrayElem")) {
+                sb.append("\t;" + instr.toString() + "\n");
+                sb.append("\tmov  eax, " + instr.arg2 + "         ; EAX = num (1..5)\n");
+                sb.append("\tmov  edx, " + instr.arg1 + "[eax*4] ; EDX = values[num]\n");
+                sb.append("\tmov  " + instr.result + ", edx           ; sum = values[num]\n");
+                sb.append("\n");
+            } else if (instr.op.equals("+")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                 sb.append("\tadd eax, " + instr.arg2 + "\n");
                 sb.append("\tmov " + instr.result + ", eax\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("-")) {
+            } else if (instr.op.equals("-")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                 sb.append("\tsub eax, " + instr.arg2 + "\n");
                 sb.append("\tmov " + instr.result + ", eax\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("*")) {
+            } else if (instr.op.equals("*")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                 sb.append("\tIMUL eax, " + instr.arg2 + "\n");
                 sb.append("\tmov " + instr.result + ", eax\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("/")) {
+            } else if (instr.op.equals("/")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                 sb.append("\tCDQ" + "\n");
                 sb.append("\tIDIV " + instr.arg2 + "\n");
                 sb.append("\tmov " + instr.result + ", eax\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("EQUAL")) {
+            } else if (instr.op.equals("EQUAL")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 String arg1Type = typeInfo.get(instr.arg1);
 
-                if(arg1Type.equals("char")) {
-                    sb.append("\tmov     al, "  + instr.arg1  + "      ; load ch\n");
-                    sb.append("\tcmp     al, '" + instr.arg2 +  "'     ; compare with char literal \n");
+                if (arg1Type.equals("CHAR")) {
+                    sb.append("\tmov     al, " + instr.arg1 + "      ; load ch\n");
+                    sb.append("\tcmp     al, '" + instr.arg2 + "'     ; compare with char literal \n");
                     sb.append("\tsetz    al            ; AL = 1 if equal, else 0\n");
                     sb.append("\tmov     " + instr.result + ", al        ; store boolean result\n");
-                }
-                else if(arg1Type.equals("integer")) {
-                    sb.append("\tmov     al, "  + instr.arg1  + "      ; load ch\n");
-                    sb.append("\tcmp     al, '" + instr.arg2 +  "'     ; compare with char literal \n");
+                } else if (arg1Type.equals("integer")) {
+                    sb.append("\tmov     al, " + instr.arg1 + "      ; load ch\n");
+                    sb.append("\tcmp     al, '" + instr.arg2 + "'     ; compare with char literal \n");
                     sb.append("\tsetz    al            ; AL = 1 if equal, else 0\n");
                     sb.append("\tmovzx   eax, al\n");
                     sb.append("\tmov     " + instr.result + ", al        ; store boolean result\n");
                 }
                 sb.append("\n");
-            }
-            else if(instr.op.equals("LESSTHAN")) {
+            } else if (instr.op.equals("LESSTHAN")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                 sb.append("\tcmp eax, " + instr.arg2 + "\n");
                 sb.append("\tsetl al" + "\n");
                 sb.append("\tmov " + instr.result + ", al\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("LESSEQUAL")) {
+            } else if (instr.op.equals("LESSEQUAL")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                 sb.append("\tcmp eax, " + instr.arg2 + "\n");
                 sb.append("\tsetle al" + "\n");
                 sb.append("\tmov " + instr.result + ", al\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("GREATER")) {
+            } else if (instr.op.equals("GREATER")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                 sb.append("\tcmp eax, " + instr.arg2 + "\n");
                 sb.append("\tsetg al" + "\n");
                 sb.append("\tmov " + instr.result + ", al\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("GREATEREQUAL")) {
+            } else if (instr.op.equals("GREATEREQUAL")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov eax" + ", " + instr.arg1 + "\n");
                 sb.append("\tcmp eax, " + instr.arg2 + "\n");
                 sb.append("\tsetge al" + "\n");
                 sb.append("\tmov " + instr.result + ", al\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("and")) {
+            } else if (instr.op.equals("and")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov al" + ", " + instr.arg1 + "\n");
                 sb.append("\tand al" + ", " + instr.arg2 + "\n");
                 sb.append("\tand al, 1" + "\n");
                 sb.append("\tmov " + instr.result + ", al\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("or")) {
+            } else if (instr.op.equals("or")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tmov al" + ", " + instr.arg1 + "\n");
                 sb.append("\tor al" + ", " + instr.arg2 + "\n");
                 sb.append("\tand al, 1" + "\n");
                 sb.append("\tmov " + instr.result + ", al\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("IfZ")) {
+            } else if (instr.op.equals("IfZ")) {
                 sb.append("\t;" + instr.toString() + "\n");
                 sb.append("\tcmp " + instr.arg1 + ", 0\n");
-                sb.append("\tje " + instr.arg2 +"\n");
+                sb.append("\tje " + instr.arg2 + "\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("Label")) {
+            } else if (instr.op.equals("Label")) {
                 sb.append("" + instr.arg1 + ":\n");
-            }
-            else if(instr.op.equals("GOTO")) {
+            } else if (instr.op.equals("GOTO")) {
                 sb.append("\tjmp " + instr.arg1 + "\n");
                 sb.append("\n");
-            }
-            else if(instr.op.equals("read")) {
-//                sb.append("\t;" + instr.toString() + "\n");
-//                sb.append("\tmov eax, " + instr.arg1 + "\n");
-//                sb.append("\tcall WriteDec\n");
-//                //sb.append("\tcall Crlf\n");
-//                sb.append("\n");
-            }
-            else if(instr.op.equals("print")) {
+            } else if (instr.op.equals("read-integer")) {
                 sb.append("\t;" + instr.toString() + "\n");
-                sb.append("\tmov eax, " + instr.arg1 + "\n");
-                sb.append("\tcall WriteDec\n");
-                sb.append("\tcall Crlf\n");
+                sb.append("\tcall ReadInt          ; EAX = signed integer" + "\n");
+                sb.append("\tmov  " + instr.result + ", eax\n");
                 sb.append("\n");
-            }
-            else {
+            } else if (instr.op.equals("readln-integer")) {
+                sb.append("\t;" + instr.toString() + "\n");
+
+                sb.append("\tmov  edx, OFFSET buf\n");
+                sb.append("\tmov  ecx, LENGTHOF buf\n");
+                sb.append("\tcall ReadInt       ; EAX <- typed integer\n");
+                sb.append("\tmov  " + instr.result + ", eax\n");
+                sb.append("\tcall Crlf          ; optional: move to next line\n");
+            } else if (instr.op.equals("read-char")) {
+                sb.append("\t;" + instr.toString() + "\n");
+                sb.append("\tcall ReadChar" + "\n");
+                sb.append("\tmov  " + instr.result + ", al\n");
+                sb.append("\n");
+            } else if (instr.op.equals("readln-char")) {
+                sb.append("\t;" + instr.toString() + "\n");
+
+                sb.append("\tmov  edx, OFFSET buf\n");
+                sb.append("\tmov  ecx, LENGTHOF buf\n");
+                sb.append("\tcall ReadString        ; reads a line (no CR/LF stored), count in EAX\n");
+                sb.append("\tmov  al, buf[0]        ; first character of the line\n");
+                sb.append("\tmov  " + instr.result + ", al\n");
+                sb.append("\n");
+            } else if (instr.op.equals("write-char")) {
+                sb.append("\tmov  al, " + instr.result + "\n");
+                sb.append("\tcall WriteChar" + "\n");
+                sb.append("\n");
+            } else if (instr.op.equals("write-integer")) {
+                sb.append("\tmov  eax, " + instr.result + "\n");
+                sb.append("\tcall WriteInt" + "\n");
+                sb.append("\n");
+            } else if (instr.op.equals("write-boolean")) {
+                sb.append("\tmovzx  eax, " + instr.result + "\n");
+                sb.append("\tcall WriteDec" + "\n");
+                sb.append("\n");
+            } else if (instr.op.equals("writeln-char")) {
+                sb.append("\tmov  al, " + instr.result + "\n");
+                sb.append("\tcall WriteChar" + "\n");
+                sb.append("\tcall Crlf" + "\n");
+                sb.append("\n");
+            } else if (instr.op.equals("writeln-integer")) {
+                sb.append("\tmov  eax, " + instr.result + "\n");
+                sb.append("\tcall WriteInt" + "\n");
+                sb.append("\tcall Crlf" + "\n");
+                sb.append("\n");
+            } else if (instr.op.equals("writeln-boolean")) {
+                sb.append("\tmovzx  eax, " + instr.result + "\n");
+                sb.append("\tcall WriteDec" + "\n");
+                sb.append("\tcall Crlf" + "\n");
+                sb.append("\n");
+            } else if(instr.op.equals("write")) {
+                sb.append("\t;" + instr.toString() + "\n");
+                if(instr.arg1!=null && instr.arg1.toString().length() > 0) {
+                    sb.append("\tmov edx, OFFSET " + instr.arg1 + "\n");
+                    sb.append("\tcall WriteString\n");
+                }
+                sb.append("\n");
+            } else if(instr.op.equals("writeln")) {
+                sb.append("\t;" + instr.toString() + "\n");
+                if(instr.arg1!=null && instr.arg1.toString().length() > 0) {
+                    sb.append("\tmov edx, OFFSET " + instr.arg1 + "\n");
+                    sb.append("\tcall WriteString\n");
+                }
+                sb.append("\tcall Crlf" + "\n");
+                sb.append("\n");
+            } else {
                 sb.append(instr.toMyString());
                 sb.append("\n");
                 sb.append("\n");
@@ -271,8 +320,7 @@ public class MasmGenerator {
         try {
             Integer.parseInt(value);
             return true;
-        }
-        catch(NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
         }
         return false;
     }

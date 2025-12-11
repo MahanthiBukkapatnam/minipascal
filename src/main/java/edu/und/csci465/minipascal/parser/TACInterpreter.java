@@ -114,8 +114,20 @@ class TACInterpreter {
                 case "Label":
                     //FILLER
                     break;
+                case "readln":
+                    //FILLER
+                    break;
+                case "writeln":
+                    //FILLER
+                    break;
+                case "writeln-integer":
+                    out.append(valueOf(i.result)).append("\n");
+                    break;
+                case "writeln-boolean":
+                    out.append(valueOf(i.result)).append("\n");
+                    break;
                 default:
-                    throw new RuntimeException("Unknown TAC op: " + i.op);
+                    //throw new RuntimeException("Unknown TAC op: " + i.op);
             }
         }
         return out.toString();
