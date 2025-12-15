@@ -388,20 +388,36 @@ class ParserDelivery3Test {
     @Nested
     class SemanticTypeCheckingTests {
         @Nested
-        class InvalidCases {
+        class InvalidArithmeticCases {
             @Test
             void semanticError1() {
-                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/mixingIntAndBoolean.pas");
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/arithmetic/mixingIntAndBoolean.pas");
             }
 
             @Test
             void semanticError2() {
-                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/mixingIntAndBooleanCase2.pas");
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/arithmetic/mixingIntAndBooleanCase2.pas");
             }
 
             @Test
             void semanticError3() {
-                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/mixingIntAndQuote.pas");
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/arithmetic/mixingIntAndQuote.pas");
+            }
+        }
+
+        @Nested
+        class InvalidRelationalCases {
+            @Test
+            void semanticError1() {
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/relational/comparingIntAndChar.pas");
+            }
+            @Test
+            void semanticError2() {
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/relational/comparingIntAndBoolean.pas");
+            }
+            @Test
+            void semanticError3() {
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/relational/comparingIntAndQuote.pas");
             }
 
         }

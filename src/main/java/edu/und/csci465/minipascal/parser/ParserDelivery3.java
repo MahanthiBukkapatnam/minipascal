@@ -453,7 +453,7 @@ public class ParserDelivery3 implements IParser {
             String t = newTemp();
             emit("declare", t, "INTEGER", null);
 
-            checkForSemanticError(expr.getExpectedType(), right.getVariableType());
+            checkForArithmeticSemanticError(expr.getExpectedType(), right.getVariableType());
             if (op == TokenType.PLUS) {
                 emit("+", left.getExpressionValue(), right.getExpressionValue(), t);
             } else {
@@ -484,7 +484,7 @@ public class ParserDelivery3 implements IParser {
             String t = newTemp();
             emit("declare", t, "INTEGER", null);
 
-            checkForSemanticError(expr.getExpectedType(), right.getVariableType());
+            checkForArithmeticSemanticError(expr.getExpectedType(), right.getVariableType());
             if (op == TokenType.TIMES) {
                 emit("*", left.getExpressionValue(), right.getExpressionValue(), t);
             } else {
@@ -513,11 +513,9 @@ public class ParserDelivery3 implements IParser {
                 if(lookahead.getType() == TokenType.LBRACK ) {
                     consume(TokenType.LBRACK);
                     if(lookahead.getType() == TokenType.NUMBER ) {
-                        //consume(TokenType.NUMBER);                          //How do you process the index?
                         arrayIndex = parseExpr(arrayIndex);
                     }
                     else if(lookahead.getType() == TokenType.IDENTIFIER ) {
-                        //consume(TokenType.IDENTIFIER);                      //How do you process the index?
                         arrayIndex = parseExpr(arrayIndex);
                     }
                     consume(TokenType.RBRACK);
@@ -555,44 +553,62 @@ public class ParserDelivery3 implements IParser {
                 Expr innerExpr = parseExpr(expr);
                 consume(TokenType.RPAREN);
                 return innerExpr;
-            case "QUOTESTRING":                             //Semantic Error??
+            case "QUOTESTRING":
                 String name = lookahead.getLexeme();
                 consume(TokenType.QUOTESTRING);
                 expr.setVariableName(name);
                 expr.setVariableType(VariableType.QUOTE_STRING);
                 expr.setConst(name,VariableType.QUOTE_STRING);
                 return expr;
-            case "TRUESYM":                                 //Semantic Error??
+            case "TRUESYM":
                 consume(TokenType.TRUESYM);
+
+                String t = newTemp();
+                emit("assign", "true", null, t); // t = literal
+
                 Expr newExpr = new Expr();
                 newExpr.setConst(Boolean.TRUE, VariableType.BOOLEAN);
                 return newExpr;
             case "FALSESYM":                                //Semantic Error??
                 consume(TokenType.TRUESYM);
-                Expr newExpr1 = new Expr();
-                newExpr1.setConst(Boolean.FALSE, VariableType.BOOLEAN);
-                return newExpr1;
+
+                String t1 = newTemp();
+                emit("assign", "false", null, t1);
+
+                Expr exprFalse = new Expr();
+                exprFalse.setConst(Boolean.FALSE, VariableType.BOOLEAN);
+                return exprFalse;
             case "LITCHAR":
-                String litChar = lookahead.getLexeme();     //Semantic Error??
+                String litChar = lookahead.getLexeme();
+                String t2 = newTemp();
+                emit("declare", t2, "CHAR", null);
+                emit("assign", litChar, null, t2);
                 consume(TokenType.LITCHAR);
-                Expr newExpr2 = new Expr();
-                newExpr2.setConst(litChar.charAt(0), VariableType.CHAR);
-                return newExpr2;
+
+                Expr exprChar = new Expr();
+                exprChar.setConst(litChar.charAt(0), VariableType.CHAR);
+                return exprChar;
             default:
                 error("Expression expected");
                 return null; // unreachable
         }
     }
 
-    private void checkForSemanticError(VariableType expectedType,VariableType lookaheadType) {
-        if(expectedType == VariableType.INTEGER) {
-            if( lookaheadType==VariableType.INTEGER
-                ||
-                lookaheadType==VariableType.CHAR ) {
-            }
-            else {
-                error("Semantic Error: Incompatible Types [" + expectedType.name() + ", " + lookaheadType.name() + "]");
-            }
+    private void checkForLogicalSemanticError(VariableType expectedType,VariableType lookaheadType) {
+        if( VariableType.resultOfLogical(expectedType, lookaheadType) == VariableType.ERROR) {
+            error("Semantic Error: Incompatible Types [" + expectedType.name() + ", " + lookaheadType.name() + "]. Cannot perform Logical Operation");
+        }
+    }
+
+    private void checkForRelationalSemanticError(VariableType expectedType,VariableType lookaheadType) {
+        if( VariableType.resultOfRelational(expectedType, lookaheadType) == VariableType.ERROR) {
+            error("Semantic Error: Incompatible Types [" + expectedType.name() + ", " + lookaheadType.name() + "]. Cannot perform Relational Operation");
+        }
+    }
+
+    private void checkForArithmeticSemanticError(VariableType expectedType,VariableType lookaheadType) {
+        if( VariableType.resultOfArithmetic(expectedType, lookaheadType) == VariableType.ERROR) {
+            error("Semantic Error: Incompatible Types [" + expectedType.name() + ", " + lookaheadType.name() + "]. Cannot perform Arithmetic Operation");
         }
     }
 
@@ -605,6 +621,7 @@ public class ParserDelivery3 implements IParser {
             consume(lookahead.getType());
             Expr nextExpr = parseBoolNot(expr);
 
+            checkForLogicalSemanticError(prevExpr.getExpectedType(),nextExpr.getVariableType());
             String t = newTemp();
             emit("declare", t, "BOOLEAN", null);
             emit(operator, prevExpr.getExpressionValue(), nextExpr.getExpressionValue(), t);
@@ -633,6 +650,7 @@ public class ParserDelivery3 implements IParser {
             emit("declare", t, "BOOLEAN", null);
             emit("assign", "true", null, t); // t = literal
             Expr expr1 = new Expr();
+            expr1.setExpectedType(VariableType.BOOLEAN);
             expr1.setConst(Boolean.TRUE, VariableType.BOOLEAN);
             return expr1;
         }
@@ -642,6 +660,7 @@ public class ParserDelivery3 implements IParser {
             emit("declare", t, "BOOLEAN", null);
             emit("assign", "false", null, t); // t = literal
             Expr expr2 = new Expr();
+            expr2.setExpectedType(VariableType.BOOLEAN);
             expr2.setConst(Boolean.FALSE, VariableType.BOOLEAN);
             return expr2;
         }
@@ -660,6 +679,8 @@ public class ParserDelivery3 implements IParser {
             String operator = lookahead.getLexeme();
             consume(lookahead.getType());
             Expr right = parseBooleanFactor(expr);
+
+            checkForRelationalSemanticError(left.getExpectedType(), right.getVariableType());
 
             String t = newTemp();
             emit("declare", t, "BOOLEAN", null);
@@ -703,11 +724,13 @@ public class ParserDelivery3 implements IParser {
                     Expr tempExpr = new Expr();
                     tempExpr.setVariableName(temp);
                     tempExpr.setVariableType(VariableType.INTEGER);
+                    tempExpr.setExpectedType(VariableType.INTEGER);
                     return tempExpr;
                 }
                 Expr newExpr = new Expr();
                 newExpr.setVariableName(name);
                 newExpr.setVariableType(symbolTable.findSymbol(name).getVariableType());
+                newExpr.setExpectedType(symbolTable.findSymbol(name).getVariableType());
                 return newExpr;
             }
             case "NUMBER": {
@@ -717,10 +740,11 @@ public class ParserDelivery3 implements IParser {
                 emit("declare", tempName, "INTEGER", null);
                 emit("assign", String.valueOf(v), null, tempName); // tempName = literal
 
-                Expr exprTemp = new Expr();
-                exprTemp.setVariableType(VariableType.INTEGER);
-                exprTemp.setVariableName(tempName);
-                return exprTemp;
+                Expr newExpr = new Expr();
+                newExpr.setVariableType(VariableType.INTEGER);
+                newExpr.setVariableName(tempName);
+                newExpr.setExpectedType(VariableType.INTEGER);
+                return newExpr;
             }
             case "TRUESYM":
                 consume(TokenType.TRUESYM);
@@ -730,6 +754,7 @@ public class ParserDelivery3 implements IParser {
 
                 Expr exprTrue = new Expr();
                 exprTrue.setConst(Boolean.TRUE, VariableType.BOOLEAN);
+                exprTrue.setExpectedType(VariableType.BOOLEAN);
                 return exprTrue;
             case "FALSESYM":
                 consume(TokenType.TRUESYM);
@@ -738,6 +763,7 @@ public class ParserDelivery3 implements IParser {
 
                 Expr exprFalse = new Expr();
                 exprFalse.setConst(Boolean.FALSE, VariableType.BOOLEAN);
+                exprFalse.setExpectedType(VariableType.BOOLEAN);
                 return exprFalse;
             case "LITCHAR":
                 String litChar = lookahead.getLexeme();
@@ -748,6 +774,7 @@ public class ParserDelivery3 implements IParser {
 
                 Expr exprChar = new Expr();
                 exprChar.setConst(litChar.toString(), VariableType.CHAR);
+                exprChar.setExpectedType(VariableType.CHAR);
                 return exprChar;
             case "LPAREN":
                 consume(TokenType.LPAREN);
