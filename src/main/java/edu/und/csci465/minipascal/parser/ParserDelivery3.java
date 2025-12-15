@@ -453,6 +453,7 @@ public class ParserDelivery3 implements IParser {
             String t = newTemp();
             emit("declare", t, "INTEGER", null);
 
+            checkForSemanticError(expr.getExpectedType(), right.getVariableType());
             if (op == TokenType.PLUS) {
                 emit("+", left.getExpressionValue(), right.getExpressionValue(), t);
             } else {
@@ -474,6 +475,7 @@ public class ParserDelivery3 implements IParser {
 
         expr.setWantLValue(true);
         Expr left = parseFactor(expr);
+
         while (lookahead.getType() == TokenType.TIMES || lookahead.getType() == TokenType.DIVSYM) {
             TokenType op = lookahead.getType();
             consume(op);
@@ -482,6 +484,7 @@ public class ParserDelivery3 implements IParser {
             String t = newTemp();
             emit("declare", t, "INTEGER", null);
 
+            checkForSemanticError(expr.getExpectedType(), right.getVariableType());
             if (op == TokenType.TIMES) {
                 emit("*", left.getExpressionValue(), right.getExpressionValue(), t);
             } else {
@@ -499,6 +502,7 @@ public class ParserDelivery3 implements IParser {
     private Expr parseFactor(Expr expr) {
 
         String typeName = lookahead.getType().name();
+
         switch (typeName) {
             case "IDENTIFIER": {
                 String name = lookahead.getLexeme();
@@ -577,6 +581,18 @@ public class ParserDelivery3 implements IParser {
             default:
                 error("Expression expected");
                 return null; // unreachable
+        }
+    }
+
+    private void checkForSemanticError(VariableType expectedType,VariableType lookaheadType) {
+        if(expectedType == VariableType.INTEGER) {
+            if( lookaheadType==VariableType.INTEGER
+                ||
+                lookaheadType==VariableType.CHAR ) {
+            }
+            else {
+                error("Semantic Error: Incompatible Types [" + expectedType.name() + ", " + lookaheadType.name() + "]");
+            }
         }
     }
 

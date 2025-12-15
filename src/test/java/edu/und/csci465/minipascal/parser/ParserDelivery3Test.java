@@ -385,6 +385,29 @@ class ParserDelivery3Test {
         }
     }
 
+    @Nested
+    class SemanticTypeCheckingTests {
+        @Nested
+        class InvalidCases {
+            @Test
+            void semanticError1() {
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/mixingIntAndBoolean.pas");
+            }
+
+            @Test
+            void semanticError2() {
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/mixingIntAndBooleanCase2.pas");
+            }
+
+            @Test
+            void semanticError3() {
+                parseMiniPascalFile("src/test/resources/delivery2/expressions/invalid/semantic/mixingIntAndQuote.pas");
+            }
+
+        }
+    }
+
+
     void parseMiniPascalFile(String fileName) {
         try {
             FileUtil.printFile(fileName);
