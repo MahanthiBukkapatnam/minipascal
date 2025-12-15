@@ -84,8 +84,14 @@ class TACInstr {
                 return "declare " + arg1 + " as " + arg2;
             case "GOTO":
                 return "GOTO " + arg1;
-            case "print":
-                return "print " + arg1;
+            case "readln-integer":
+                return "read " + result;
+            case "write-integer":
+                return "print " + result;
+            case "write-boolean":
+                return "print " + result;
+            case "writeln":
+                return "writeln " + arg1;
             default:
                 return "// ? " + op + " " + arg1 + " " + arg2 + " " + result;
         }

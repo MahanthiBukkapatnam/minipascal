@@ -409,6 +409,7 @@ public class ParserDelivery3 implements IParser {
                 consume(TokenType.COMMA);
                 continue;
             }
+            expr.setExpectedType(VariableType.INTEGER);
             expr = parseExpr(expr);
 
             if(!expr.isConst()) {
@@ -493,6 +494,7 @@ public class ParserDelivery3 implements IParser {
             Expr exprRight = new Expr();
             exprRight.setExpectedType(VariableType.INTEGER);
             exprRight.setVariableName(t);
+            exprRight.setVariableType(VariableType.INTEGER);
             left = exprRight;
         }
         return left;
@@ -621,7 +623,7 @@ public class ParserDelivery3 implements IParser {
             consume(lookahead.getType());
             Expr nextExpr = parseBoolNot(expr);
 
-            checkForLogicalSemanticError(prevExpr.getExpectedType(),nextExpr.getVariableType());
+            checkForLogicalSemanticError(prevExpr.getVariableType(),nextExpr.getVariableType());
             String t = newTemp();
             emit("declare", t, "BOOLEAN", null);
             emit(operator, prevExpr.getExpressionValue(), nextExpr.getExpressionValue(), t);

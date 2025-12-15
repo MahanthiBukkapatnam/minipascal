@@ -120,6 +120,12 @@ class TACInterpreter {
                 case "writeln":
                     //FILLER
                     break;
+                case "write-integer":
+                    out.append(valueOf(i.result));
+                    break;
+                case "write-boolean":
+                    out.append(valueOf(i.result));
+                    break;
                 case "writeln-integer":
                     out.append(valueOf(i.result)).append("\n");
                     break;
