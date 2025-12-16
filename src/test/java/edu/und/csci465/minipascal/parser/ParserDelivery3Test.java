@@ -424,6 +424,30 @@ class ParserDelivery3Test {
     }
 
 
+    @Nested
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    class ProcedureTests {
+
+        @Test
+        void simple0() {
+            parseMiniPascalFile("src/test/resources/delivery3/procedure/proc0Params.pas");
+            generateTargetCode();
+        }
+
+        @Test
+        void simple1() {
+            parseMiniPascalFile("src/test/resources/delivery3/procedure/proc1Params.pas");
+            generateTargetCode();
+        }
+
+        @Test
+        void simple2() {
+            parseMiniPascalFile("src/test/resources/delivery3/procedure/proc2Params.pas");
+            generateTargetCode();
+        }
+    }
+
+
     void parseMiniPascalFile(String fileName) {
         try {
             FileUtil.printFile(fileName);

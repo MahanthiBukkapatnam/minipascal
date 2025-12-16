@@ -43,6 +43,11 @@ public class Scope {
         this.locals.put(fn.name, fn);
     }
 
+    public void addSymbol(Procedure pc) {
+        this.checkUniqueSymbolName(pc.name);
+        this.locals.put(pc.name, pc);
+    }
+
     public void addSymbol(Variable var) {
         this.checkUniqueSymbolName(var.name);
         this.locals.put(var.name, var);

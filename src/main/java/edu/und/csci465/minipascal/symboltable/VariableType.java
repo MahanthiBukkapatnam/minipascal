@@ -1,6 +1,8 @@
 package edu.und.csci465.minipascal.symboltable;
 
 public enum VariableType {
+    FUNCTION,
+    PROCEDURE,
     ERROR,
     UNDEFINED,
     QUOTE_STRING,

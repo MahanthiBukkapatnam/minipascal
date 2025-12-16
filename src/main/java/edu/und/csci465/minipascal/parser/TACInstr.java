@@ -22,6 +22,8 @@ class TACInstr {
     String arg2;
     String result;
 
+    boolean inProc = false;
+
     TACInstr(String op, String arg1, String arg2, String result) {
         this.op = op;
         this.arg1 = arg1;
@@ -29,6 +31,7 @@ class TACInstr {
         this.result = result;
         handleMasmVariables();
     }
+
     public void handleMasmVariables() {
         this.arg1 = getMappedValue(this.arg1);
         this.arg2 = getMappedValue(this.arg2);
@@ -95,5 +98,13 @@ class TACInstr {
             default:
                 return "// ? " + op + " " + arg1 + " " + arg2 + " " + result;
         }
+    }
+
+    public boolean isInProc() {
+        return inProc;
+    }
+
+    public void setInProc(boolean inProc) {
+        this.inProc = inProc;
     }
 }

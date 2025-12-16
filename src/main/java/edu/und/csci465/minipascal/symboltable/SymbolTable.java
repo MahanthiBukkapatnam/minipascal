@@ -45,9 +45,15 @@ public class SymbolTable {
 
     // TODO: should the store location come from the parser?
     public Function addFunction(String name, VariableType variableType, int label) {
-        Function new_function = new Function(name, variableType, label);
-        this.topScope.addSymbol(new_function);
-        return new_function;
+        Function function = new Function(name, variableType, label);
+        this.topScope.addSymbol(function);
+        return function;
+    }
+
+    public Procedure addProcedure(String name) {
+        Procedure procedure = new Procedure(name, VariableType.PROCEDURE);
+        this.topScope.addSymbol(procedure);
+        return procedure;
     }
 
     public Variable addVariable(String name, VariableType variableType) {

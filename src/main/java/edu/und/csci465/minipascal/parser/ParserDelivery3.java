@@ -14,13 +14,15 @@ public class ParserDelivery3 implements IParser {
     private SymbolTable symbolTable = new SymbolTable();
 //    private final Set<String> variables = new LinkedHashSet<>();
 //    private final Map<String, VariableType> variableTypeMap = new HashMap<>();
+    private int parameterIndex = 0;
 
     private int tempCount = 0;
     private int locatorCount = 0;
     private int promptCount=0;
 
     // generated TAC
-    private final List<TACInstr> tac = new ArrayList<>();
+    private List<TACInstr> tac = new ArrayList<>();
+    private List<TACInstr> variablesTac = new ArrayList<>();
 
 
     public void setGetSymbol(GetSymbol getSymbol) {
@@ -74,8 +76,14 @@ public class ParserDelivery3 implements IParser {
         consume(TokenType.IDENTIFIER);
         consume(TokenType.SEMICOLON);
 
-        parseVarSection();
+        // zero or more procedure declarations
+        parseProcedureSection();
 
+        if (lookahead.getType() == TokenType.VARSYM) {
+            variablesTac = parseVarSection();
+        }
+
+        this.tac.addAll(variablesTac);
         parseBlock();
         consume(TokenType.PERIOD);
 
@@ -140,15 +148,160 @@ public class ParserDelivery3 implements IParser {
         }
     }
 
-    // varSection ::= 'var' (idList ':' 'integer' ';')*
-    private void parseVarSection() {
-        consume(TokenType.VARSYM);
-        while (lookahead.getType() == TokenType.IDENTIFIER) {
-            parseVarDecl();
+    void parseProcedureSection() {
+        while (lookahead.getType() == TokenType.PROCEDURESYM) {
+            parseProcedureDecl();
         }
     }
 
-    private void parseVarDecl() {
+
+    // procedureDecl  -> PROCEDURE id formalParams? ';' varSection? compoundStmt ';'
+    private void parseProcedureDecl() {
+        consume(TokenType.PROCEDURESYM);
+        String procName = "";
+        if(lookahead.getType()==TokenType.IDENTIFIER) {
+            procName = lookahead.getLexeme();
+        }
+        consume(TokenType.IDENTIFIER);
+
+        parameterIndex=0;
+        // New scope for params + locals
+        Procedure procedure = symbolTable.addProcedure(procName);
+        symbolTable.openScope(0);       //?
+
+        // Optional formal parameter list: (a: integer; b: char)
+        if (lookahead.getType() == TokenType.LPAREN) {
+            parseFormalParams(procedure);     // declares params in current scope
+        }
+
+        consume(TokenType.SEMICOLON);
+
+        // Optional local var section inside the procedure
+        if (lookahead.getType() == TokenType.VARSYM) {
+            variablesTac = parseVarSection();       // reuse your existing var parser
+        }
+        this.tac.addAll(variablesTac);
+
+        emit("PROC", procName, null, null);
+        emit("BEGINPROC", procName, null, null );
+        // Body: begin ... end
+        parseBlock();
+        emit("ENDPROC", procName, null, null );
+
+        // Procedure declaration ends with ';'
+        consume(TokenType.SEMICOLON);
+
+        symbolTable.closeScope();
+    }
+
+    /**
+     * formalParams -> '(' paramGroup (';' paramGroup)* ')'
+     * paramGroup   -> id (',' id)* ':' type
+     */
+    private void parseFormalParams(Procedure procedure) {
+        consume(TokenType.LPAREN);
+
+        // Empty param list not allowed in standard Pascal, but handle gracefully:
+        if (lookahead.getType() != TokenType.RPAREN) {
+            parseParamGroup(procedure);
+            while (lookahead.getType() == TokenType.SEMICOLON) {
+                consume(TokenType.SEMICOLON);
+                parseParamGroup(procedure);
+            }
+        }
+
+        consume(TokenType.RPAREN);
+    }
+
+    private void parseParamGroup(Procedure procedure) {
+        // Collect identifiers: a, b, c
+        List<String> names = new ArrayList<>();
+        String id = expectId();
+        names.add(id);
+        procedure.addParameter(new Variable(id,VariableType.INTEGER));  //This should be dynamic
+        while (match(TokenType.COMMA)) {
+            id = expectId();
+            names.add(id);
+            procedure.addParameter(new Variable(id,VariableType.INTEGER));  //This should be dynamic, not harded coded as INTEGER
+        }
+
+        consume(TokenType.COLON);
+
+        Expr arrayExprEnd = new Expr();             //This is Code duplication
+        VariableType variableType = null;
+        if(lookahead.getType() == TokenType.INTEGERSYM) {
+            consume(TokenType.INTEGERSYM);
+            variableType = VariableType.INTEGER;
+        }
+        else if(lookahead.getType() == TokenType.CHARSYM) {
+            consume(TokenType.CHARSYM);
+            variableType = VariableType.CHAR;
+        }
+        else if(lookahead.getType() == TokenType.BOOLEANSYM) {
+            consume(TokenType.BOOLEANSYM);
+            variableType = VariableType.BOOLEAN;
+        }
+        else if(lookahead.getType() == TokenType.ARRAYSYM) {
+            consume(TokenType.ARRAYSYM);
+            consume(TokenType.LBRACK);
+            consume(TokenType.NUMBER);
+            consume(TokenType.PERIOD);
+            consume(TokenType.PERIOD);
+            arrayExprEnd = parseExpr(arrayExprEnd);
+            //consume(TokenType.NUMBER);
+            consume(TokenType.RBRACK);
+            consume(TokenType.OFSYM);
+            if( lookahead.getType() == TokenType.INTEGERSYM) {
+                consume(TokenType.INTEGERSYM);
+                variableType = VariableType.INTEGER_ARRAY;
+            }
+            else if( lookahead.getType() == TokenType.CHARSYM) {
+                consume(TokenType.CHARSYM);
+                variableType = VariableType.CHAR_ARRAY;
+            }
+            else if( lookahead.getType() == TokenType.BOOLEANSYM) {
+                consume(TokenType.BOOLEANSYM);
+                variableType = VariableType.BOOLEAN_ARRAY;
+            }
+        }
+
+        // Declare each as a parameter in the current scope
+        for (String name : names) {
+            if(symbolTable.isSymbolDeclared(name)) {
+                error("Duplicate variable: " + name);
+            }
+            symbolTable.addVariable(name,variableType);
+            if(variableType == VariableType.INTEGER_ARRAY) {
+                try {
+                    Integer endVal = Integer.parseInt(arrayExprEnd.getConstValue().toString());
+                    endVal = endVal.intValue() + 1;
+                    emit("declare", id, variableType.name(), endVal.toString());
+                }
+                catch(Exception ex) {
+                    throw new RuntimeException("Array End Index not defined correctly");
+                }
+            }
+            else {
+                emit("declare", name, variableType.name(), null);
+                emit("declareParam", name, variableType.name(), ""+parameterIndex);
+            }
+            parameterIndex++;
+        }
+    }
+
+    // varSection ::= 'var' (idList ':' 'integer' ';')*
+    private List<TACInstr> parseVarSection() {
+        this.variablesTac = new ArrayList<>();
+        consume(TokenType.VARSYM);
+        while (lookahead.getType() == TokenType.IDENTIFIER) {
+            List<TACInstr> tempList = parseVarDecl();
+            this.variablesTac.addAll(tempList);
+        }
+        return this.variablesTac;
+    }
+
+    private List<TACInstr> parseVarDecl() {
+        List<TACInstr> tempList = new ArrayList<>();
         List<String> names = new ArrayList<>();
         String id = expectId();
         names.add(id);
@@ -209,15 +362,18 @@ public class ParserDelivery3 implements IParser {
                     Integer endVal = Integer.parseInt(arrayExprEnd.getConstValue().toString());
                     endVal = endVal.intValue() + 1;
                     emit("declare", id, variableType.name(), endVal.toString());
+                    tempList.add(new TACInstr("declare", id, variableType.name(), endVal.toString()) );
                 }
                 catch(Exception ex) {
                     throw new RuntimeException("Array End Index not defined correctly");
                 }
             }
             else {
-                emit("declare", name, variableType.name(), null);
+                //emit("declare", name, variableType.name(), null);
+                tempList.add(new TACInstr("declare", name, variableType.name(), null) );
             }
         }
+        return tempList;
     }
 
     private String expectId() {
@@ -284,6 +440,12 @@ public class ParserDelivery3 implements IParser {
     // assignment ::= ID ':=' expr
     private void parseAssignment() {
         String name = expectId();  //This consumes the identifier.
+
+        //if it is a procedure name, invoke the proc
+        if( symbolTable.findSymbol(name).getVariableType() == VariableType.PROCEDURE) {
+            parseProcedureCall(name);
+            return;
+        }
         ensureDeclared(name);
 
         Expr arrayIndex = new Expr();
@@ -327,6 +489,46 @@ public class ParserDelivery3 implements IParser {
             emit("assignArray", exprRight.getExpressionValue(), arrayIndex.getExpressionValue(), name);
         }
     }
+
+    private void parseProcedureCall(String procedureName) {
+        List<String> args = Collections.emptyList();
+
+        if (lookahead.getType() == TokenType.LPAREN) {
+            args = parseActualParams();
+        }
+
+        // Example TAC convention:
+        // PARAM a1
+        // PARAM a2
+        // CALL procName, n
+        for (String a : args) {
+            emit("PARAM", a, null, null);
+        }
+        emit("callProc", procedureName, String.valueOf(args.size()), null);
+    }
+
+
+    private List<String> parseActualParams() {
+        List<String> args = new ArrayList<>();
+        consume(TokenType.LPAREN);
+        // handle empty () if your dialect allows it
+        if (lookahead.getType() != TokenType.RPAREN) {
+            Expr expr = new Expr();
+            expr = parseExpr(expr);
+            args.add(expr.getVariableName());              // parse first expression
+
+            while (lookahead.getType() == TokenType.COMMA) {
+                consume(TokenType.COMMA);
+                Expr expr2 = new Expr();
+                expr2 = parseExpr(expr2);
+                args.add(expr2.getVariableName());
+            }
+        }
+
+        consume(TokenType.RPAREN);
+        return args;
+    }
+
 
     // readStmt ::= 'read' '(' ID ')'
     private void parseReadStmt() {
